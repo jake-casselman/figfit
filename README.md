@@ -33,9 +33,13 @@ lies on the data (a map, bars, a filled band) moves to an empty spot in its pane
 there is none, under the panel in a row; long labels that touch something wrap onto two
 lines; axis labels keep clear of their tick numbers; panel letters step clear of axis
 labels; crowded tick labels tilt; notes inside a panel push apart; legends move off labels;
-and only then do panels get more space between them. Background bands and grid lines do
-not count as data. Sizes, colours, data and wording stay as they are. It prints what it
-changed and anything it could not fix:
+and only then do panels get more space between them. Last, a note with a box round it
+(a season label on a map) that cuts into the edge of something drawn, such as a coast,
+moves the shortest way clear of it, and notes set in line with it move too. It may sit on
+specks smaller than itself (islands, markers), and a note written on the data on purpose
+stays. Background bands and grid lines do not count as data. Sizes, colours, data and
+wording stay as they are. It prints what it changed and anything it could not fix
+(`TEXT OVERLAP` for text on text, `TEXT ON DATA` for a boxed note with no clear place):
 
 ```python
 from figfont.mpl import scale_fonts

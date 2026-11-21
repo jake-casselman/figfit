@@ -27,6 +27,11 @@ this order:
             for rows, hspace and a taller figure (the width, which sets
             the print scale, never changes).
 
+  5. notes  a note with a box round it (a season label on a map) that cuts
+            into something the panel draws (a coast, a curve) moves the
+            shortest way clear of it, and notes set in line with it move
+            too; one written on the data on purpose stays where it is.
+
 Nothing else changes: no sizes, colours, data or wording. report() prints
 what is left, so a figure never ships with text on top of text unseen.
 """
@@ -347,6 +352,13 @@ TOUCH = 0.01  # and so does one with more than this share of any entry's text on
 EMPTY = 0.05  # to a spot in the panel with less than this, or under the panel
 
 
+def _gridliners(axes):
+    """Cartopy's grid-line drawers for a map (kept in a private list before
+    cartopy 0.25, among the axes' artists since)."""
+    found = list(getattr(axes, "_gridliners", []))
+    return found + [a for a in axes.artists if hasattr(a, "xline_artists") and a not in found]
+
+
 def _backdrop(axes):
     """What a legend may lie on: grid lines and bands that span the panel
     (axvspan), and, for a legend with a frame, reference lines that span it
@@ -355,6 +367,8 @@ def _backdrop(axes):
     from matplotlib.legend import Legend
     spanning = (axes.get_xaxis_transform(which="grid"), axes.get_yaxis_transform(which="grid"))
     found = list(axes.xaxis.get_gridlines()) + list(axes.yaxis.get_gridlines())
+    for gridliner in _gridliners(axes):  # cartopy's lines of latitude and longitude
+        found += list(getattr(gridliner, "xline_artists", [])) + list(getattr(gridliner, "yline_artists", []))
     legends = [c for c in axes.get_children() if isinstance(c, Legend) and c.get_visible()]
     framed = all(l.get_frame().get_visible() and (l.get_frame().get_alpha() or 1.0) >= 0.5
                  for l in legends)
@@ -364,14 +378,16 @@ def _backdrop(axes):
     return found
 
 
-def _drawn(figure):
-    """The figure's pixels drawn without its legends and without the backdrop
-    (row 0 at the bottom), or None when it has no legend in a panel."""
+def _drawn(figure, hide=None):
+    """The figure's pixels drawn without `hide` (its legends, when not given)
+    and without the backdrop (row 0 at the bottom), or None when there is
+    nothing to hide."""
     from matplotlib.legend import Legend
-    shown = [l for l in figure.findobj(Legend) if l.get_visible() and l.axes is not None]
-    if not shown or not hasattr(figure.canvas, "buffer_rgba"):
+    if hide is None:
+        hide = [l for l in figure.findobj(Legend) if l.get_visible() and l.axes is not None]
+    if not hide or not hasattr(figure.canvas, "buffer_rgba"):
         return None
-    shown += [a for axes in figure.axes for a in _backdrop(axes) if a.get_visible()]
+    shown = list(hide) + [a for axes in figure.axes for a in _backdrop(axes) if a.get_visible()]
     for artist in shown:
         artist.set_visible(False)
     try:
@@ -685,6 +701,139 @@ def legends(figure) -> int:
     return moved
 
 
+ON = 0.5     # a boxed note with more than this share of its box on data was put there on purpose
+REACH = 1.0  # a boxed note moves at most this many of its own widths
+
+
+def _boxed_notes(figure, renderer):
+    """Notes with a box round them written inside a panel (not panel letters,
+    not notes with an arrow), in groups: notes of one panel set at the same x
+    move together, so they stay in line."""
+    groups = {}
+    for axes in figure.axes:
+        if hasattr(axes, "_colorbar") or not axes.get_visible():
+            continue
+        for text in _free_texts(axes):
+            box = text.get_bbox_patch()
+            if box is None or not box.get_visible() or getattr(text, "_panel", None) is not None:
+                continue
+            if isinstance(text, Annotation) and text.arrow_patch is not None:
+                continue
+            if isinstance(text, Annotation):
+                transform = text._get_xy_transform(renderer, text.anncoords)
+            else:
+                transform = text.get_transform()
+            x = transform.transform(text.get_position())[0]
+            groups.setdefault((axes, int(round(x)), text.get_horizontalalignment()), []).append(text)
+    return [(key[0], texts) for key, texts in groups.items()]
+
+
+def _things(ink, least):
+    """The drawn pixels of `ink` that are part of a shape at least `least` px
+    long or high, or of one that runs off the edge (a coast, a curve, bars).
+    Specks (small islands, markers) are left out: a note may sit on those."""
+    try:
+        from scipy import ndimage
+        labels = ndimage.label(ink, structure=np.ones((3, 3)))[0]
+    except ImportError:  # the same without scipy, slower: each shape takes its largest pixel number
+        labels = np.where(ink, np.arange(1, ink.size + 1).reshape(ink.shape), 0)
+        while True:
+            wide = np.pad(labels, 1)
+            grown = labels
+            for dy in (0, 1, 2):
+                for dx in (0, 1, 2):
+                    grown = np.maximum(grown, wide[dy:dy + ink.shape[0], dx:dx + ink.shape[1]])
+            grown = np.where(ink, grown, 0)
+            if (grown == labels).all():
+                break
+            labels = grown
+    rows, columns = np.nonzero(labels)
+    if not len(rows):
+        return np.zeros(ink.shape, bool)
+    names, ids = np.unique(labels[rows, columns], return_inverse=True)
+    low = np.full((len(names), 2), max(ink.shape))
+    high = np.full((len(names), 2), -1)
+    np.minimum.at(low, ids, np.column_stack([rows, columns]))
+    np.maximum.at(high, ids, np.column_stack([rows, columns]))
+    big = ((high - low + 1).max(axis=1) >= least) | (low.min(axis=1) == 0) \
+        | (high[:, 0] == ink.shape[0] - 1) | (high[:, 1] == ink.shape[1] - 1)
+    found = np.zeros(ink.shape, bool)
+    found[rows, columns] = big[ids]
+    return found
+
+
+def clear_notes(figure):
+    """Move a boxed note that cuts into (or all but touches) something its panel draws the shortest
+    way (left, right, down or up, at most REACH of its width) to where its
+    box, with CLEARANCE round it, is clear of the drawing and of other text
+    and still inside the panel. Returns (notes moved, notes that could not be)."""
+    from matplotlib.transforms import Bbox
+    renderer = _renderer(figure)
+    groups = _boxed_notes(figure, renderer)
+    pixels = _drawn(figure, [text for _, texts in groups for text in texts])
+    if pixels is None:
+        return 0, []
+    renderer = figure.canvas.get_renderer()
+    moved, stuck = 0, []
+    for axes, texts in groups:
+        boxes = [text.get_bbox_patch().get_window_extent(renderer) for text in texts]
+        size = min(text.get_fontsize() for text in texts) * figure.dpi / 72.0
+        clear = CLEARANCE * size
+        least = min(box.height for box in boxes)
+        reach = REACH * max(box.width for box in boxes)
+        margin = reach + least + clear + 2
+        x0 = max(int(min(b.x0 for b in boxes) - margin), 0)
+        y0 = max(int(min(b.y0 for b in boxes) - margin), 0)
+        x1 = min(int(max(b.x1 for b in boxes) + margin) + 1, pixels.shape[1])
+        y1 = min(int(max(b.y1 for b in boxes) + margin) + 1, pixels.shape[0])
+        if x1 <= x0 or y1 <= y0:
+            continue
+        patch = pixels[y0:y1, x0:x1]
+        ink = np.ones(patch.shape[:2], bool)
+        for colour in (figure.get_facecolor(), axes.get_facecolor()):
+            ink &= np.abs(patch - np.round(np.array(colour[:3]) * 255)).max(axis=2) > 4
+
+        def cut(mask, box, pad=0.0, dx=0.0, dy=0.0):
+            """The part of `mask` under `box` moved by dx, dy px and grown by pad."""
+            return mask[max(int(np.floor(box.y0 + dy - pad)) - y0, 0):int(np.ceil(box.y1 + dy + pad)) - y0,
+                        max(int(np.floor(box.x0 + dx - pad)) - x0, 0):int(np.ceil(box.x1 + dx + pad)) - x0]
+
+        if max(cut(ink, box).mean() if cut(ink, box).size else 1.0 for box in boxes) > ON:
+            continue  # written on the data on purpose
+        things = _things(ink, least)
+        if not any(cut(things, box, clear / 2).any() for box in boxes):
+            continue  # clear already; within half the clearance counts as touching
+        others = [q for t, q in _texts(figure, renderer) if t not in texts]
+
+        def free(dx, dy):
+            for box in boxes:
+                at = Bbox.from_extents(box.x0 + dx - clear, box.y0 + dy - clear,
+                                       box.x1 + dx + clear, box.y1 + dy + clear)
+                if at.x0 < x0 or at.y0 < y0 or at.x1 > x1 or at.y1 > y1:
+                    return False
+                corners = np.array([[at.x0, at.y0], [at.x1, at.y0], [at.x1, at.y1], [at.x0, at.y1]])
+                if not all(axes.patch.contains_point(corner, radius=0) for corner in corners):
+                    return False
+                if cut(things, box, clear, dx, dy).any():
+                    return False
+                if any(_touch(corners, quad, -GAP) for quad in others):
+                    return False
+            return True
+
+        step = max(1.0, 0.05 * size)
+        shift = next(((dx, dy) for d in np.arange(step, reach + step, step)
+                      for dx, dy in ((-d, 0.0), (d, 0.0), (0.0, -d), (0.0, d)) if free(dx, dy)), None)
+        if shift is None:
+            stuck += texts
+            continue
+        for text in texts:
+            _shift_text(text, shift[1], renderer, shift[0])
+        moved += len(texts)
+    if moved:
+        _renderer(figure)
+    return moved, stuck
+
+
 def _gridspecs(figure):
     specs = {}
     for axes in figure.axes:
@@ -801,12 +950,12 @@ def density(figure) -> dict:
     hidden = _index(figure)
     owner = figure._textfit_owner
     for axes in figure.axes:  # cartopy coordinate labels, made at draw time
-        for gl in getattr(axes, "_gridliners", []):
+        for gl in _gridliners(axes):
             for text in getattr(gl, "label_artists", []):
                 owner[id(text)] = axes
     texts = list(figure.findobj(Text))
     for axes in figure.axes:
-        for gl in getattr(axes, "_gridliners", []):
+        for gl in _gridliners(axes):
             texts += list(getattr(gl, "label_artists", []))
     area = {}
     for text in texts:
@@ -854,13 +1003,23 @@ def fit(figure, name: str = "", edges: bool = False, quiet: bool = False) -> int
     pixels = _drawn(figure)  # one full draw, while everything is still shown
     hidden = _hide_drawing(figure)
     try:
-        return _fit(figure, name, edges, quiet, pixels)
+        steps = _fit(figure, edges, pixels)
     finally:
         for artist in hidden:
             artist.set_visible(True)
+    # Notes are checked against the drawing as it ends up, after any change of spacing.
+    steps["notes"], stuck = clear_notes(figure)
+    if quiet:
+        return len(overlaps(figure, edges))
+    done = ", ".join(f"{k} {v}" for k, v in steps.items() if v)
+    if done:
+        print(f"TEXT FIXED {name}: {done}", flush=True)
+    for text in stuck:
+        print(f"TEXT ON DATA {name}: {text.get_text()[:40]!r} has no clear place near it", flush=True)
+    return report(figure, name, edges)
 
 
-def _fit(figure, name, edges, quiet, pixels=None):
+def _fit(figure, edges, pixels=None):
     steps = {"cover": 0, "wrap": 0, "pads": 0, "letters": 0, "ticks": 0, "inside": 0,
              "repel": 0, "legends": 0, "space": 0}
     steps["cover"] = uncover(figure, pixels)
@@ -892,11 +1051,7 @@ def _fit(figure, name, edges, quiet, pixels=None):
         # the last spacing step moved panels: settle letters and notes once more
         steps["letters"] += place_letters(figure)
         steps["repel"] += repel(figure)
-    if not quiet:
-        done = ", ".join(f"{k} {v}" for k, v in steps.items() if v)
-        if done:
-            print(f"TEXT FIXED {name}: {done}", flush=True)
-    return report(figure, name, edges) if not quiet else len(overlaps(figure, edges))
+    return steps
 
 
 def pad_cartopy_labels(points: float = 2.0) -> None:

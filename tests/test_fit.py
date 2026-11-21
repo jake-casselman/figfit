@@ -142,3 +142,82 @@ def test_frameless_legend_moves_off_a_reference_line():
     grounds = [np.round(np.array(c[:3]) * 255) for c in (fig.get_facecolor(), ax.get_facecolor())]
     for text in ax.get_legend().get_texts():
         assert textfit._covered(pixels, text.get_window_extent(renderer), grounds) <= textfit.TOUCH
+
+
+BOX = dict(boxstyle="round,pad=0.4", facecolor="white", edgecolor="darkgray", alpha=0.9)
+
+
+def _land(ax):
+    """A big filled shape on the right (a continent) and specks on the left (islands)."""
+    ax.set_xlim(0, 100)
+    ax.set_ylim(-50, 50)
+    ax.fill([60, 100, 100, 70, 55], [-50, -50, 50, 50, 10], color="tan", edgecolor="black")
+    ax.plot([12, 20, 26, 33], [14, 12, 16, 11], "k.", markersize=2)
+
+
+def _on_drawing(fig, ax, note):
+    from figfont import textfit
+    fig.canvas.draw()  # a box has no size before the first draw
+    pixels = textfit._drawn(fig, list(ax.texts))
+    box = note.get_bbox_patch().get_window_extent(fig.canvas.get_renderer())
+    grounds = [np.round(np.array(c[:3]) * 255) for c in (fig.get_facecolor(), ax.get_facecolor())]
+    return textfit._covered(pixels, box, grounds)
+
+
+def test_boxed_note_moves_off_the_edge_of_a_shape_and_its_partner_follows():
+    fig, ax = plt.subplots(figsize=(8, 4))
+    _land(ax)
+    north = ax.text(50, 8, "NDJFM", ha="left", va="bottom", bbox=BOX)
+    south = ax.text(50, -8, "MJJAS", ha="left", va="top", bbox=BOX)
+    assert _on_drawing(fig, ax, north) > 0.02
+    assert figfont.fit(fig, quiet=True) == 0
+    assert _on_drawing(fig, ax, north) == 0 and _on_drawing(fig, ax, south) == 0
+    assert north.get_position()[0] < 50 and north.get_position()[0] == south.get_position()[0]
+    assert abs(north.get_position()[1] - 8) < 1e-6 and abs(south.get_position()[1] + 8) < 1e-6
+    assert 50 - north.get_position()[0] < 8  # a nudge, not a new place
+
+
+def test_boxed_note_on_specks_or_clear_of_everything_stays():
+    fig, ax = plt.subplots(figsize=(8, 4))
+    _land(ax)
+    on_specks = ax.text(10, 8, "NDJFM", ha="left", va="bottom", bbox=BOX)
+    clear = ax.text(10, -8, "MJJAS", ha="left", va="top", bbox=BOX)
+    figfont.fit(fig, quiet=True)
+    assert on_specks.get_position() == (10, 8) and clear.get_position() == (10, -8)
+
+
+def test_boxed_note_written_on_the_data_stays():
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.imshow(np.random.rand(20, 30), extent=(0, 30, 0, 20), aspect="auto")
+    note = ax.text(5, 15, "P95 U = 2.34", bbox=BOX)
+    figfont.fit(fig, quiet=True)
+    assert note.get_position() == (5, 15)
+
+
+def test_boxed_note_with_no_clear_place_stays_and_is_reported(capsys):
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.set_xlim(0, 100)
+    ax.set_ylim(-50, 50)
+    for x in range(0, 101, 4):
+        ax.plot([x, x + 30], [-50, 50], color="black")  # lines everywhere
+    note = ax.text(50, 0, "NDJFM", bbox=BOX)
+    figfont.fit(fig, "lines")
+    assert note.get_position() == (50, 0)
+    assert "TEXT ON DATA lines: 'NDJFM'" in capsys.readouterr().out
+
+
+def test_shapes_are_found_the_same_without_scipy(monkeypatch):
+    import builtins
+    from figfont import textfit
+    ink = np.zeros((40, 60), bool)
+    ink[5:8, 5:8] = True          # a speck
+    ink[20:22, 10:50] = True      # a long line
+    ink[30:34, 55:60] = True      # small, but runs off the edge
+    ink[10, 30] = ink[11, 31] = True  # two pixels joined at a corner
+    with_scipy = textfit._things(ink, 12)
+    real = builtins.__import__
+    monkeypatch.setattr(builtins, "__import__", lambda name, *a, **k: (_ for _ in ()).throw(ImportError(name))
+                        if name.startswith("scipy") else real(name, *a, **k))
+    without = textfit._things(ink, 12)
+    assert (with_scipy == without).all()
+    assert without[20, 30] and without[31, 57] and not without[6, 6] and not without[10, 30]

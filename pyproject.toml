@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "figfont"
-version = "0.1.0"
+version = "0.2.0"
 description = "Check and fix the printed font size of figures in papers"
 requires-python = ">=3.10"
 dependencies = ["pymupdf", "numpy", "pillow", "matplotlib"]
