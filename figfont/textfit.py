@@ -51,9 +51,24 @@ TILTS = (30, 45, 60, 90)  # degrees tried, in turn, for tick labels that touch
 
 # ----------------------------------------------------------------------------- geometry
 
+def _canvas(figure):
+    """The figure's canvas. A figure with only a bare one (a notebook closes a
+    figure once it has shown it; a Figure made without pyplot never had more)
+    is given an Agg canvas, so it can be measured and drawn like any other."""
+    from matplotlib.backend_bases import FigureCanvasBase
+    if type(figure.canvas) is FigureCanvasBase:
+        from matplotlib.backends.backend_agg import FigureCanvasAgg
+        FigureCanvasAgg(figure)
+    return figure.canvas
+
+
 def _renderer(figure):
-    figure.canvas.draw()
-    return figure.canvas.get_renderer()
+    canvas = _canvas(figure)
+    if hasattr(canvas, "get_renderer"):
+        canvas.draw()
+        return canvas.get_renderer()
+    figure.draw_without_rendering()     # a canvas that only writes files (PDF, SVG)
+    return figure._get_renderer()
 
 
 def _extent(text, renderer):
@@ -389,7 +404,7 @@ def _drawn(figure, hide=None):
     from matplotlib.legend import Legend
     if hide is None:
         hide = [l for l in figure.findobj(Legend) if l.get_visible() and l.axes is not None]
-    if not hide or not hasattr(figure.canvas, "buffer_rgba"):
+    if not hide or not hasattr(_canvas(figure), "buffer_rgba"):
         return None
     shown = list(hide) + [a for axes in figure.axes for a in _backdrop(axes) if a.get_visible()]
     for artist in shown:
@@ -1026,12 +1041,12 @@ def density(figure) -> dict:
             continue
         box = axes.get_window_extent(renderer)
         if box.width * box.height > 0:
-            panels.append(area.get(axes, 0.0) / (box.width * box.height))
+            panels.append(float(area.get(axes, 0.0) / (box.width * box.height)))
             # the panel's width in heights of its own largest label text
             font = max(sizes.get(axes, [0.0]) + [t.get_fontsize() for t in figure.texts
                                                  if getattr(t, "_panel", {}).get("axis") is axes])
             if font > 0:
-                widths.append(min(box.width, box.height * 2) * 72.0 / figure.dpi / font)
+                widths.append(float(min(box.width, box.height * 2) * 72.0 / figure.dpi / font))
     return {"median": float(np.median(panels)) if panels else 0.0, "panels": panels,
             "ems": float(np.median(widths)) if widths else 0.0, "ems_min": float(min(widths)) if widths else 0.0,
             "panel_ems": widths}

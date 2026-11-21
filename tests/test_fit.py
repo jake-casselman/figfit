@@ -292,3 +292,23 @@ def test_wide_tick_names_tilt_until_they_part():
     assert figfont.fit(fig, quiet=True) == 0
     angles = {t.get_rotation() for t in ax.get_xticklabels()}
     assert len(angles) == 1 and angles.pop() > 30  # 30 degrees was not enough here
+
+
+def test_figure_without_a_drawing_canvas_is_fixed_like_any_other():
+    # a notebook closes a figure once it has shown it, which leaves the figure a
+    # bare canvas with no renderer and no pixels; a Figure made without pyplot is the same
+    from matplotlib.backend_bases import FigureCanvasBase
+    from matplotlib.figure import Figure
+    fig = Figure(figsize=(6, 3))
+    assert type(fig.canvas) is FigureCanvasBase
+    ax = fig.add_subplot()
+    _land(ax)
+    note = ax.text(50, 8, "NDJFM", ha="left", va="bottom", bbox=BOX)
+    assert figfont.clear_notes(fig) == (1, [])
+    assert _on_drawing(fig, ax, note) == 0 and note.get_position()[0] < 50
+
+    shown, ax = plt.subplots(figsize=(3, 2))
+    ax.set_xticks(range(6), ["Detached", "Semi-detached", "Terrace", "Flat", "Mobile", "Other"])
+    plt.close(shown)
+    assert figfont.overlaps(shown)
+    assert figfont.fit(shown, quiet=True) == 0

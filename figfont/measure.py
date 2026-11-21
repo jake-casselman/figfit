@@ -11,6 +11,7 @@ OCR uses Apple Vision (ocrmac) on macOS, otherwise the tesseract command if inst
 from __future__ import annotations
 
 import collections
+import os
 import statistics
 from dataclasses import dataclass, field
 
@@ -46,12 +47,13 @@ class Result:
 
 # ----------------------------------------------------------------------------- text in PDFs
 
-def pdf_figure_text(path: str) -> Result:
+def pdf_figure_text(path: str | os.PathLike) -> Result:
     """Sizes of text that sits inside figures of a PDF paper (vector text only).
 
     Figure text is text in a font other than the paper's body font, inside a region
     that also holds an image or vector drawings.
     """
+    path = os.fspath(path)
     doc = pymupdf.open(path)
     body = collections.Counter()
     for page in doc:
@@ -78,24 +80,26 @@ def pdf_figure_text(path: str) -> Result:
                     box = pymupdf.Rect(span["bbox"])  # a label at the edge of a figure sticks a hair out of it
                     if any(r.contains((box.tl + box.br) / 2) for r in regions):
                         sizes.append(span["size"])
-    return Result(path.rsplit("/", 1)[-1], "text", sizes)
+    return Result(os.path.basename(path), "text", sizes)
 
 
-def figure_pdf_text(path: str, printed_width: float) -> Result:
+def figure_pdf_text(path: str | os.PathLike, printed_width: float) -> Result:
     """Exact printed sizes of the text in a vector figure PDF placed `printed_width` inches wide.
 
     Empty when the figure's text is part of an image (use figure_ocr then).
     """
+    path = os.fspath(path)
     page = pymupdf.open(path)[0]
     factor = printed_width * 72 / page.rect.width
     sizes = [round(span["size"] * factor, 2)
              for block in page.get_text("dict")["blocks"] for line in block.get("lines", [])
              for span in line["spans"] if span["text"].strip()]
-    return Result(path.rsplit("/", 1)[-1], "text", sizes)
+    return Result(os.path.basename(path), "text", sizes)
 
 
-def figure(path: str, printed_width: float) -> Result:
+def figure(path: str | os.PathLike, printed_width: float) -> Result:
     """Exact sizes from a vector PDF when it has text, otherwise OCR."""
+    path = os.fspath(path)
     if path.lower().endswith(".pdf"):
         result = figure_pdf_text(path, printed_width)
         if result.n >= 5:
@@ -105,8 +109,9 @@ def figure(path: str, printed_width: float) -> Result:
 
 # ----------------------------------------------------------------------------- OCR
 
-def render(path: str, printed_width: float, dpi: int = DPI) -> Image.Image:
+def render(path: str | os.PathLike, printed_width: float, dpi: int = DPI) -> Image.Image:
     """A figure file (PDF page 1, PNG, JPG...) rendered at its printed width."""
+    path = os.fspath(path)
     if path.lower().endswith(".pdf"):
         page = pymupdf.open(path)[0]
         zoom = printed_width * dpi / page.rect.width
@@ -221,18 +226,17 @@ def calibration(dpi: int = DPI) -> dict[str, float]:
     global _CALIBRATION
     if _CALIBRATION is not None:
         return _CALIBRATION
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.figure import Figure      # not pyplot: the caller's backend and figures stay as they are
     samples = {"desc": "Heating degree days (kWh)", "letters": "Total U 1971 ABC", "digits": "0.25 1980 -40 100"}
     ratios = {k: [] for k in samples}
     for pt in (5, 6, 7, 8, 10, 12):
         for kind, text in samples.items():
-            fig = plt.figure(figsize=(5, 0.6), dpi=dpi)
+            fig = Figure(figsize=(5, 0.6), dpi=dpi)
+            canvas = FigureCanvasAgg(fig)
             fig.text(0.02, 0.3, text, fontsize=pt, family=["Arial", "Helvetica", "DejaVu Sans"])
-            fig.canvas.draw()
-            image = Image.frombuffer("RGBA", fig.canvas.get_width_height(), fig.canvas.buffer_rgba()).convert("RGB")
-            plt.close(fig)
+            canvas.draw()
+            image = Image.frombuffer("RGBA", canvas.get_width_height(), canvas.buffer_rgba()).convert("RGB")
             heights = [h for h, _ in _ocr_lines(image, dpi, sideways=False)]
             if heights:
                 ratios[kind].append(np.median(heights) / pt)
@@ -240,9 +244,10 @@ def calibration(dpi: int = DPI) -> dict[str, float]:
     return _CALIBRATION
 
 
-def figure_ocr(path: str, printed_width: float, dpi: int = DPI) -> Result:
+def figure_ocr(path: str | os.PathLike, printed_width: float, dpi: int = DPI) -> Result:
     """Printed text sizes of one figure file placed `printed_width` inches wide."""
+    path = os.fspath(path)
     k = calibration(dpi)
     lines = _ocr_lines(render(path, printed_width, dpi), dpi)
     sizes = [h / k.get(_kind(t), 1.0) for h, t in lines]
-    return Result(path.rsplit("/", 1)[-1], "ocr", [round(s, 2) for s in sizes])
+    return Result(os.path.basename(path), "ocr", [round(s, 2) for s in sizes])

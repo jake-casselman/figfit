@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.3 (2026-11-21)
+
+- `docs/tour.ipynb`: a notebook that takes one figure from first draft to the page and calls
+  every function once, with its output saved.
+- A file can be given as a `pathlib.Path` as well as a string.
+- `fit`, `overlaps`, `density` and `clear_notes` work on a figure a notebook has already shown,
+  and on a `Figure` made without pyplot.
+- Measuring an image no longer switches the plotting backend of the session that calls it.
+- `density` returns plain Python numbers.
+
 ## 0.2.2 (2026-11-21)
 
 - `fit`: a boxed note never moves onto or over a line drawn right across its panel (an equator,

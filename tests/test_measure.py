@@ -55,3 +55,20 @@ def test_figure_text_in_a_paper_is_counted_and_body_text_is_not(tmp_path):
     result = measure.pdf_figure_text(str(tmp_path / "paper.pdf"))
     assert result.n == 7                   # four tick numbers, two axis labels and the panel letter
     assert sorted(set(result.sizes)) == [7.0, 8.0]
+
+
+def test_a_file_can_be_given_as_a_path_object(tmp_path):
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.plot([0, 1], [0, 1])
+    ax.set_xlabel("Distance along the track (km)")
+    ax.set_ylabel("Height above the ground (m)")
+    fig.savefig(tmp_path / "plot.pdf")
+    plt.close(fig)
+    as_path = measure.figure(tmp_path / "plot.pdf", 3.0)
+    as_text = measure.figure(str(tmp_path / "plot.pdf"), 3.0)
+    assert as_path.name == "plot.pdf"
+    assert as_path.sizes == as_text.sizes and as_path.n >= 5
+    assert round(as_path.median, 1) == 5.0    # 10 pt drawn 6 in wide, placed 3 in wide

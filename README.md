@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img alt="version 0.2.2" src="https://img.shields.io/badge/version-0.2.2-2a78d6">
+  <img alt="version 0.2.3" src="https://img.shields.io/badge/version-0.2.3-2a78d6">
   <img alt="Python 3.10 or later" src="https://img.shields.io/badge/python-3.10%2B-2a78d6">
   <img alt="works with matplotlib" src="https://img.shields.io/badge/works%20with-matplotlib-2a78d6">
   <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-1baf7a">
@@ -84,6 +84,11 @@ figfont.figure("fig01.pdf", printed_width=5.15).summary()
 
 The full script is [`docs/examples/quickstart.py`](docs/examples/quickstart.py). It draws the
 three-panel figure at the top of this page in matplotlib's own style.
+
+**Notebook tour.** [`docs/tour.ipynb`](docs/tour.ipynb) takes that same figure from first draft to
+the page in a Jupyter notebook and calls every function once, in the order you would reach for it.
+Its output is saved, so it reads on GitHub without running anything. The sections below are the
+reference for each function.
 
 ---
 
@@ -526,6 +531,13 @@ python docs/make_images.py hero ticks   # only these
 ```
 
 The map picture needs cartopy and the measuring picture needs OCR.
+
+The notebook keeps its output. Run it again after a change, so the saved output matches the code:
+
+```bash
+pip install jupyter cartopy
+jupyter nbconvert --to notebook --execute --inplace docs/tour.ipynb
+```
 
 ## Licence
 
