@@ -1,0 +1,3 @@
+TEXT OVERLAP peaks.png: 'The peak comes later each year' <-> '3.0'
+TEXT ON ANOTHER PANEL peaks.png: 'The peak comes later each year' <-> a neighbouring panel
+TEXT OFF THE FIGURE peaks.png: 'Change since 1980 (%)'
