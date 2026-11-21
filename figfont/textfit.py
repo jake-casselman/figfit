@@ -348,12 +348,17 @@ EMPTY = 0.05  # to a spot in the panel with less than this, or under the panel
 
 
 def _backdrop(axes):
-    """What a legend may lie on: grid lines, and bands and reference lines that
-    span the panel (axvspan, axhline)."""
+    """What a legend may lie on: grid lines and bands that span the panel
+    (axvspan), and, for a legend with a frame, reference lines that span it
+    (axhline); a legend without a frame would have the line through its text."""
     from matplotlib.artist import Artist
+    from matplotlib.legend import Legend
     spanning = (axes.get_xaxis_transform(which="grid"), axes.get_yaxis_transform(which="grid"))
     found = list(axes.xaxis.get_gridlines()) + list(axes.yaxis.get_gridlines())
-    for artist in list(axes.patches) + list(axes.lines):
+    legends = [c for c in axes.get_children() if isinstance(c, Legend) and c.get_visible()]
+    framed = all(l.get_frame().get_visible() and (l.get_frame().get_alpha() or 1.0) >= 0.5
+                 for l in legends)
+    for artist in list(axes.patches) + (list(axes.lines) if framed else []):
         if any(Artist.get_transform(artist) is t for t in spanning):
             found.append(artist)
     return found

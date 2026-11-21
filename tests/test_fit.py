@@ -127,3 +127,18 @@ def test_legend_text_touching_data_moves_off_it():
     grounds = [np.round(np.array(c[:3]) * 255) for c in (fig.get_facecolor(), ax.get_facecolor())]
     for text in ax.get_legend().get_texts():
         assert textfit._covered(pixels, text.get_window_extent(renderer), grounds) <= textfit.TOUCH
+
+
+def test_frameless_legend_moves_off_a_reference_line():
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.plot([0, 10], [0, 0.2], label="A curve with a long label")
+    ax.axvline(8.5, linestyle=":")
+    ax.set_ylim(0, 1)
+    ax.legend(loc="upper right", frameon=False)
+    from figfont import textfit
+    assert figfont.fit(fig, quiet=True) == 0
+    pixels = textfit._drawn(fig)
+    renderer = fig.canvas.get_renderer()
+    grounds = [np.round(np.array(c[:3]) * 255) for c in (fig.get_facecolor(), ax.get_facecolor())]
+    for text in ax.get_legend().get_texts():
+        assert textfit._covered(pixels, text.get_window_extent(renderer), grounds) <= textfit.TOUCH
