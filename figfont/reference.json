@@ -1,0 +1,145 @@
+{
+ "about": "Printed figure text size in published journal articles (vector text only), from a local library scan on 2026-11-20. Each paper contributes at most 200 text spans.",
+ "all": {
+  "papers": 111,
+  "median_pt": 7.97,
+  "p10_pt": 6.0,
+  "p90_pt": 9.96,
+  "paper_medians_p25_p75": [
+   7.39,
+   8.97
+  ]
+ },
+ "journals": {
+  "Nature Communications": {
+   "papers": 10,
+   "median_pt": 7.97,
+   "p10_pt": 6.23,
+   "p90_pt": 8.77,
+   "paper_medians_p25_p75": [
+    7.97,
+    7.97
+   ]
+  },
+  "Nature": {
+   "papers": 7,
+   "median_pt": 7.0,
+   "p10_pt": 5.5,
+   "p90_pt": 8.0,
+   "paper_medians_p25_p75": [
+    6.0,
+    7.0
+   ]
+  },
+  "Journal of Climate": {
+   "papers": 5,
+   "median_pt": 8.47,
+   "p10_pt": 7.97,
+   "p90_pt": 9.46,
+   "paper_medians_p25_p75": [
+    7.97,
+    8.47
+   ]
+  },
+  "Communications Earth & Environment": {
+   "papers": 5,
+   "median_pt": 7.97,
+   "p10_pt": 7.97,
+   "p90_pt": 9.46,
+   "paper_medians_p25_p75": [
+    7.97,
+    9.46
+   ]
+  },
+  "Energy and Buildings": {
+   "papers": 4,
+   "median_pt": 6.46,
+   "p10_pt": 5.45,
+   "p90_pt": 8.38,
+   "paper_medians_p25_p75": [
+    6.35,
+    7.97
+   ]
+  },
+  "npj Climate and Atmospheric Science": {
+   "papers": 4,
+   "median_pt": 7.97,
+   "p10_pt": 7.77,
+   "p90_pt": 8.97,
+   "paper_medians_p25_p75": [
+    7.97,
+    7.97
+   ]
+  },
+  "Nature Sustainability": {
+   "papers": 3,
+   "median_pt": 7.1,
+   "p10_pt": 5.56,
+   "p90_pt": 9.0,
+   "paper_medians_p25_p75": [
+    7.5,
+    8.5
+   ]
+  },
+  "Scientific Reports": {
+   "papers": 3,
+   "median_pt": 5.98,
+   "p10_pt": 3.97,
+   "p90_pt": 9.0,
+   "paper_medians_p25_p75": [
+    5.82,
+    8.5
+   ]
+  },
+  "International Journal of Climatology": {
+   "papers": 3,
+   "median_pt": 8.5,
+   "p10_pt": 7.34,
+   "p90_pt": 10.21,
+   "paper_medians_p25_p75": [
+    8.47,
+    8.86
+   ]
+  },
+  "Atmosphere": {
+   "papers": 3,
+   "median_pt": 8.3,
+   "p10_pt": 7.97,
+   "p90_pt": 8.97,
+   "paper_medians_p25_p75": [
+    8.14,
+    8.64
+   ]
+  },
+  "Climate Dynamics": {
+   "papers": 3,
+   "median_pt": 8.77,
+   "p10_pt": 7.03,
+   "p90_pt": 10.0,
+   "paper_medians_p25_p75": [
+    8.06,
+    8.68
+   ]
+  },
+  "Journal of Advances in Modeling Earth Systems": {
+   "papers": 3,
+   "median_pt": 8.0,
+   "p10_pt": 6.36,
+   "p90_pt": 9.0,
+   "paper_medians_p25_p75": [
+    7.49,
+    8.0
+   ]
+  },
+  "Nature Climate Change": {
+   "papers": 3,
+   "median_pt": 6.5,
+   "p10_pt": 4.0,
+   "p90_pt": 7.02,
+   "paper_medians_p25_p75": [
+    5.0,
+    6.25
+   ]
+  }
+ }
+}

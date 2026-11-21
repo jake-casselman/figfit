@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "figfont"
+version = "0.1.0"
+description = "Check and fix the printed font size of figures in papers"
+requires-python = ">=3.10"
+dependencies = ["pymupdf", "numpy", "pillow", "matplotlib"]
+
+[project.optional-dependencies]
+mac = ["ocrmac"]
+tesseract = ["pytesseract"]
+
+[project.scripts]
+figfont = "figfont.cli:main"
+
+[tool.setuptools.package-data]
+figfont = ["reference.json"]
