@@ -28,11 +28,14 @@ set_printed_fonts(fig, printed_width=5.15)  # 7 pt ticks, 8 pt labels and titles
 ```
 
 Bigger text in the same layout collides. `figfont.fit(fig)` finds every pair of touching
-text in a matplotlib figure and fixes it with the smallest change: long labels that touch
-something wrap onto two lines, panel letters step clear of axis labels, crowded tick labels
-tilt, notes inside a panel push apart, legends move off labels, and only then do panels get
-more space between them. Sizes, colours, data and wording stay as they are. It prints what
-it changed and anything it could not fix:
+text in a matplotlib figure and fixes it with the smallest change: a legend whose text
+lies on the data (a map, bars, a filled band) moves to an empty spot in its panel or, when
+there is none, under the panel in a row; long labels that touch something wrap onto two
+lines; axis labels keep clear of their tick numbers; panel letters step clear of axis
+labels; crowded tick labels tilt; notes inside a panel push apart; legends move off labels;
+and only then do panels get more space between them. Background bands and grid lines do
+not count as data. Sizes, colours, data and wording stay as they are. It prints what it
+changed and anything it could not fix:
 
 ```python
 from figfont.mpl import scale_fonts

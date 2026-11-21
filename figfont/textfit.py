@@ -5,9 +5,14 @@ keeps its old spacing, so labels can land on each other. fit() finds every
 pair of touching text and fixes it with the smallest change that works, in
 this order:
 
+  0. cover  a legend lying on what its panel draws (a map, bars) moves to an
+            empty corner of the panel, or, when there is none, under the
+            panel with its entries in a row;
   1. wrap   a panel title, axis label or colour-bar label longer than its
             panel or bar, that touches other text, goes onto two lines
             (the words stay the same);
+     pads   an axis or colour-bar label keeps 0.3 of its font size from
+            its tick labels (a pad set in points does not grow with the font);
   2. letters a panel letter on its own axis labels moves left, past them,
             and so do the other letters in its column, so they stay aligned;
   3. ticks  tick labels that touch their neighbours tilt 30 degrees;
@@ -249,17 +254,38 @@ def wrap(figure) -> int:
     count = 0
 
     def fit_to(text, length, along_x=True, always=False):
-        nonlocal count
-        if not text.get_text().strip() or "\n" in text.get_text():
+        nonlocal count, renderer
+        was = text.get_text()
+        if not was.strip():
             return
         box = _extent(text, renderer)
         size = box.width if along_x else box.height
-        if (always or id(text) in touching) and size > length * 1.02:
+        if not (always or id(text) in touching) or size <= length * 1.02:
+            return
+        if "\n" not in was:
             lines = int(np.ceil(size / length)) if always else 2
-            new = _wrapped(text.get_text(), max(2, min(lines, 3)))
-            if new != text.get_text():
+            new = _wrapped(was, max(2, min(lines, 3)))
+            if new != was:
                 text.set_text(new)
                 count += 1
+            return
+        # Already on two lines and still too long (one line much longer than
+        # the other): share the same words out evenly, on two lines, then three.
+        joined = " ".join(part.strip() for part in was.split("\n"))
+        best, best_size = was, size
+        for lines in (2, 3):
+            text.set_text(_wrapped(joined, lines))
+            renderer = _renderer(figure)
+            box = _extent(text, renderer)
+            now = box.width if along_x else box.height
+            if now < best_size - 1.0:
+                best, best_size = text.get_text(), now
+            if now <= length * 1.02:
+                break
+        text.set_text(best)
+        if best != was:
+            count += 1
+        renderer = _renderer(figure)
 
     for text in figure.texts:
         tag = getattr(text, "_panel", None)
@@ -277,6 +303,183 @@ def wrap(figure) -> int:
         fit_to(axes.xaxis.label, box.width)
         fit_to(axes.yaxis.label, box.height, along_x=False)
     return count
+
+
+def pads(figure) -> int:
+    """An axis label (a colour bar's too) keeps CLEARANCE of its font size
+    from its tick labels. A label pad is set in points, so after the text
+    grows the label ends up touching the numbers."""
+    renderer = _renderer(figure)
+    hidden = _index(figure)
+    moved = 0
+    for axes in figure.axes:
+        if not axes.axison or not axes.get_visible():
+            continue
+        for axis, k in ((axes.xaxis, 1), (axes.yaxis, 0)):
+            label = axis.label
+            if not label.get_visible() or not label.get_text().strip() or not axis.get_visible():
+                continue
+            if not getattr(axis, "_autolabelpos", True):
+                continue  # placed by hand
+            numbers = [_extent(t, renderer) for t in axis.get_ticklabels(which="both")
+                       if id(t) not in hidden and t.get_visible() and t.get_text().strip()]
+            numbers = [b for b in numbers if b.width > 0 and b.height > 0]
+            if not numbers:
+                continue
+            box = _extent(label, renderer)
+            low = min(b.min[k] for b in numbers)
+            high = max(b.max[k] for b in numbers)
+            if (box.min[k] + box.max[k]) / 2 >= (low + high) / 2:
+                gap = box.min[k] - high
+            else:
+                gap = low - box.max[k]
+            need = CLEARANCE * label.get_fontsize() * figure.dpi / 72.0
+            if gap < need - 0.5:
+                axis.labelpad = axis.labelpad + (need - gap) * 72.0 / figure.dpi
+                moved += 1
+    if moved:
+        _renderer(figure)
+    return moved
+
+
+COVER = 0.20  # a legend with more than this share of its box on drawn data moves
+TOUCH = 0.01  # and so does one with more than this share of any entry's text on data,
+EMPTY = 0.05  # to a spot in the panel with less than this, or under the panel
+
+
+def _backdrop(axes):
+    """What a legend may lie on: grid lines, and bands and reference lines that
+    span the panel (axvspan, axhline)."""
+    from matplotlib.artist import Artist
+    spanning = (axes.get_xaxis_transform(which="grid"), axes.get_yaxis_transform(which="grid"))
+    found = list(axes.xaxis.get_gridlines()) + list(axes.yaxis.get_gridlines())
+    for artist in list(axes.patches) + list(axes.lines):
+        if any(Artist.get_transform(artist) is t for t in spanning):
+            found.append(artist)
+    return found
+
+
+def _drawn(figure):
+    """The figure's pixels drawn without its legends and without the backdrop
+    (row 0 at the bottom), or None when it has no legend in a panel."""
+    from matplotlib.legend import Legend
+    shown = [l for l in figure.findobj(Legend) if l.get_visible() and l.axes is not None]
+    if not shown or not hasattr(figure.canvas, "buffer_rgba"):
+        return None
+    shown += [a for axes in figure.axes for a in _backdrop(axes) if a.get_visible()]
+    for artist in shown:
+        artist.set_visible(False)
+    try:
+        figure.canvas.draw()
+        pixels = np.asarray(figure.canvas.buffer_rgba())[::-1, :, :3].astype(np.int16)
+    finally:
+        for artist in shown:
+            artist.set_visible(True)
+    return pixels
+
+
+def _covered(pixels, box, backgrounds) -> float:
+    """Share of `box` (display px) that is drawn on, i.e. not a background colour."""
+    x0, x1 = int(np.floor(box.x0)), int(np.ceil(box.x1))
+    y0, y1 = int(np.floor(box.y0)), int(np.ceil(box.y1))
+    if x0 < 0 or y0 < 0 or x1 > pixels.shape[1] or y1 > pixels.shape[0] or x1 <= x0 or y1 <= y0:
+        return 1.0  # off the figure: no place for a legend
+    patch = pixels[y0:y1, x0:x1]
+    ink = np.ones(patch.shape[:2], bool)
+    for colour in backgrounds:
+        ink &= np.abs(patch - colour).max(axis=2) > 4
+    return float(ink.mean())
+
+
+def uncover(figure, pixels) -> int:
+    """Move a legend that lies on what its panel draws (a map, bars): to the
+    emptiest corner of the panel when one is empty, else under the panel,
+    below its tick and axis labels, with the entries side by side.
+    `pixels` is _drawn(figure), made before anything was hidden."""
+    from matplotlib.legend import Legend
+    from matplotlib.transforms import Bbox
+    if pixels is None:
+        return 0
+    renderer = _renderer(figure)
+    moved = 0
+    for legend in list(figure.findobj(Legend)):
+        axes = legend.axes
+        if axes is None or not legend.get_visible() or not legend.get_texts():
+            continue
+        backgrounds = [np.round(np.array(colour[:3]) * 255)
+                       for colour in (figure.get_facecolor(), axes.get_facecolor())]
+        box = legend.get_window_extent(renderer)
+        entries = [_extent(t, renderer) for t in legend.get_texts() if t.get_text().strip()]
+
+        def cover(dx=0.0, dy=0.0):
+            """(share of the box on data, largest share of one entry's text on data)
+            with the legend moved by dx, dy px."""
+            whole = _covered(pixels, box.translated(dx, dy), backgrounds)
+            return whole, max(_covered(pixels, e.translated(dx, dy), backgrounds) for e in entries)
+
+        whole, text = cover()
+        if whole <= COVER and text <= TOUCH:
+            continue
+        panel = axes.get_window_extent(renderer)
+        size = legend.get_texts()[0].get_fontsize()
+        pad = legend.borderaxespad * size * figure.dpi / 72.0
+        spots = {}
+        if box.width + 2 * pad <= panel.width and box.height + 2 * pad <= panel.height:
+            rows = {"upper": panel.y1 - pad - box.height, "center": panel.y0 + (panel.height - box.height) / 2,
+                    "lower": panel.y0 + pad}
+            columns = {"left": panel.x0 + pad, "center": panel.x0 + (panel.width - box.width) / 2,
+                       "right": panel.x1 - pad - box.width}
+            for row, y in rows.items():
+                for column, x in columns.items():
+                    if row == column:
+                        continue  # the middle of the panel
+                    share = cover(x - box.x0, y - box.y0)
+                    if share[0] <= EMPTY and share[1] <= TOUCH:
+                        spots[f"{row} {column}"] = share[0]
+        best = min(spots, key=spots.get) if spots else None
+        if best is not None:
+            legend.set_bbox_to_anchor(None)
+            legend._loc = Legend.codes[best]
+            legend.stale = True
+            moved += 1
+            renderer = _renderer(figure)
+            continue
+        # No empty corner: under the panel, clear of its own labels and colour bar.
+        below = [panel.y0] + [q[:, 1].min() for q in _own_text(axes, renderer)]
+        below += [a.get_window_extent(renderer).y0 for a in figure.axes
+                  if a is not axes and _owner_axes(a) is axes]
+        below += [l.get_window_extent(renderer).y0 for l in axes.findobj(Legend)
+                  if l is not legend and getattr(l, "_under", False)]
+        gap = CLEARANCE * size * figure.dpi / 72.0
+        y = (min(below) - gap - panel.y0) / panel.height
+        handles = list(getattr(legend, "legend_handles", None) or legend.legendHandles)
+        labels = [t.get_text() for t in legend.get_texts()]
+        title = legend.get_title()
+        keep = {"fontsize": size, "frameon": legend.get_frame_on(), "handlelength": legend.handlelength,
+                "handletextpad": legend.handletextpad, "labelspacing": legend.labelspacing,
+                "columnspacing": legend.columnspacing, "borderpad": legend.borderpad,
+                "markerscale": 1.0, "borderaxespad": 0.0, "loc": "upper center",
+                "bbox_to_anchor": (0.5, y), "bbox_transform": axes.transAxes}
+        if title.get_text().strip():
+            keep.update(title=title.get_text(), title_fontsize=title.get_fontsize())
+        main = axes.legend_ is legend
+        legend.remove()
+        count = len(labels)
+        tries = sorted({count, int(np.ceil(count / 2)), int(np.ceil(count / 3)), 1}, reverse=True)
+        for columns in tries:
+            new = Legend(axes, handles, labels, ncol=columns, **keep)
+            if main:
+                axes.legend_ = new
+                new._remove_method = axes._remove_legend
+            else:
+                axes.add_artist(new)
+            renderer = _renderer(figure)
+            if new.get_window_extent(renderer).width <= panel.width or columns == 1:
+                break
+            new.remove()
+        new._under = True  # legends() keeps it clear of its own panel's labels only
+        moved += 1
+    return moved
 
 
 def _own_text(axis, renderer):
@@ -452,8 +655,10 @@ def legends(figure) -> int:
             mine = [_quad(t, renderer) for t in legend.get_texts() if t.get_text().strip()]
             if legend.get_title().get_text().strip():
                 mine.append(_quad(legend.get_title(), renderer))
+            under = getattr(legend, "_under", False)
             hit = [q for t, q in _texts(figure, renderer) if id(t) not in own
-                   and any(_touch(m, q) for m in mine)]
+                   and any(_touch(m, q) for m in mine)
+                   and not (under and _owner(t) is not legend.axes)]  # a neighbour's: for space()
             if not hit:
                 break
             box = legend.get_window_extent(renderer)
@@ -468,8 +673,9 @@ def legends(figure) -> int:
             else:
                 dy = max(q[:, 1].max() for q in hit) - box.y0 + GAP
             shifted = anchor.translated(0, dy)
-            legend.set_bbox_to_anchor(shifted.transformed(figure.transFigure.inverted()),
-                                      transform=figure.transFigure)
+            # anchored to its panel, so it follows when the panels move apart
+            frame = panel.transAxes if panel is not None else figure.transFigure
+            legend.set_bbox_to_anchor(shifted.transformed(frame.inverted()), transform=frame)
             moved += 1
     return moved
 
@@ -640,32 +846,43 @@ def fit(figure, name: str = "", edges: bool = False, quiet: bool = False) -> int
         print(f"TEXT DENSITY {name}: median {d['median']:.4f} ems {d['ems']:.1f} min {d['ems_min']:.1f} panels "
               + " ".join(f"{p:.4f}" for p in d["panels"]) + " | ems "
               + " ".join(f"{w:.1f}" for w in d["panel_ems"]), flush=True)
+    pixels = _drawn(figure)  # one full draw, while everything is still shown
     hidden = _hide_drawing(figure)
     try:
-        return _fit(figure, name, edges, quiet)
+        return _fit(figure, name, edges, quiet, pixels)
     finally:
         for artist in hidden:
             artist.set_visible(True)
 
 
-def _fit(figure, name, edges, quiet):
-    steps = {"wrap": 0, "letters": 0, "ticks": 0, "inside": 0, "repel": 0,
-             "legends": 0, "space": 0}
+def _fit(figure, name, edges, quiet, pixels=None):
+    steps = {"cover": 0, "wrap": 0, "pads": 0, "letters": 0, "ticks": 0, "inside": 0,
+             "repel": 0, "legends": 0, "space": 0}
+    steps["cover"] = uncover(figure, pixels)
+    fixers = (("wrap", wrap), ("pads", pads), ("letters", place_letters), ("ticks", ticks),
+              ("inside", inside), ("repel", repel), ("legends", legends))
+    retries = 3  # rounds allowed when a fix changed something but more space did not help
     for _ in range(MAX_STEPS):
-        steps["wrap"] += wrap(figure)
-        steps["letters"] += place_letters(figure)
-        steps["ticks"] += ticks(figure)
-        steps["inside"] += inside(figure)
-        steps["repel"] += repel(figure)
-        steps["legends"] += legends(figure)
+        fixed = 0
+        for key, fixer in fixers:
+            count = fixer(figure)
+            steps[key] += count
+            fixed += count
         problems = overlaps(figure, edges)
         if os.environ.get("TEXTFIT_DEBUG"):
             for a, b, why in problems:
                 print("  step", steps["space"], why, repr(a.get_text()[:30]),
                       repr(b.get_text()[:30]) if isinstance(b, Text) else b, flush=True)
-        if not problems or not space(figure, problems):
+        if not problems:
             break
-        steps["space"] += 1
+        if space(figure, problems):
+            steps["space"] += 1
+            continue
+        # One fix can set up the next (a label pushed out by pads now needs
+        # wrapping): go round again while the fixes still change something.
+        retries -= 1
+        if not fixed or retries < 0:
+            break
     else:
         # the last spacing step moved panels: settle letters and notes once more
         steps["letters"] += place_letters(figure)
