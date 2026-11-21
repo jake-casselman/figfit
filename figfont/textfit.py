@@ -14,14 +14,20 @@ this order:
      inside a note inside a panel that runs past its side moves back in;
      repel  two notes inside one panel push apart vertically;
      legend a legend that touches a label moves away from it;
+  Cartopy coordinate labels are redrawn by cartopy on every draw; call
+  pad_cartopy_labels() so cartopy itself keeps a gap between them.
+
   4. space  text that still touches a neighbouring panel's text gets more
-            space between the panels (gridspec wspace / hspace), in steps.
+            space between the panels, in steps: wspace for side by side;
+            for rows, hspace and a taller figure (the width, which sets
+            the print scale, never changes).
 
 Nothing else changes: no sizes, colours, data or wording. report() prints
 what is left, so a figure never ships with text on top of text unseen.
 """
 from __future__ import annotations
 
+import os
 import re
 
 import numpy as np
@@ -29,7 +35,7 @@ from matplotlib.text import Annotation, Text
 
 GAP = 3.0       # px kept between text after a fix
 STEP = 0.04     # gridspec wspace / hspace added per spacing step
-MAX_STEPS = 12
+MAX_STEPS = 30
 
 
 # ----------------------------------------------------------------------------- geometry
@@ -133,20 +139,59 @@ def _owner(text):
 
 # ----------------------------------------------------------------------------- finding
 
+CLEARANCE = 0.3  # text of different panels keeps this many font sizes apart
+
+
+def _clear_px(a, b, figure) -> float:
+    size = min(a.get_fontsize(), b.get_fontsize() if isinstance(b, Text) else a.get_fontsize())
+    return CLEARANCE * size * figure.dpi / 72.0
+
+
+def _plot_areas(figure, renderer):
+    """(axes, box quad) for every panel's plot area and colour bar."""
+    areas = []
+    for axes in figure.axes:
+        if not axes.get_visible():
+            continue
+        box = axes.get_window_extent(renderer)
+        areas.append((axes, np.array([[box.x0, box.y0], [box.x1, box.y0], [box.x1, box.y1], [box.x0, box.y1]])))
+    return areas
+
+
 def overlaps(figure, edges: bool = False):
-    """[(text_a, text_b or None, why)] for touching text, and (edges=True) text
-    off the figure. Off-figure is meaningless when saving with bbox="tight"."""
+    """[(text_a, text_b | axes | None, why)] for: text touching text (text of
+    different panels must also keep a small gap), text lying on another
+    panel's plot area or colour bar, and (edges=True) text off the figure.
+    Off-figure is meaningless when saving with bbox="tight"."""
     renderer = _renderer(figure)
     found = _texts(figure, renderer)
+    areas = _plot_areas(figure, renderer)
     edge = figure.bbox
     problems = []
     for i, (a, qa) in enumerate(found):
         if edges and (qa[:, 0].min() < edge.x0 - 2 or qa[:, 0].max() > edge.x1 + 2
                       or qa[:, 1].min() < edge.y0 - 2 or qa[:, 1].max() > edge.y1 + 2):
             problems.append((a, None, "off the figure"))
+        oa = _owner(a)
         for b, qb in found[i + 1:]:
-            if _touch(qa, qb):
+            ob = _owner(b)
+            apart = (oa is not None and ob is not None and oa is not ob) or any(
+                getattr(t, "_panel", {}).get("kind") == "letter" for t in (a, b))
+            if _touch(qa, qb, -_clear_px(a, b, figure) if apart else 0.5):
                 problems.append((a, b, "overlap"))
+        if oa is None:
+            continue
+        own = oa.get_window_extent(renderer)
+        for axes, qb in areas:
+            if _owner_axes(axes) is oa:
+                continue  # its own panel or its own colour bar
+            box = axes.get_window_extent(renderer)
+            if np.allclose(box.bounds, own.bounds, atol=1.0):
+                continue  # a twin of its panel
+            if box.x0 <= own.x0 and box.y0 <= own.y0 and box.x1 >= own.x1 and box.y1 >= own.y1:
+                continue  # its panel is an inset of this one
+            if _touch(qa, qb, -_clear_px(a, a, figure) / 2):
+                problems.append((a, axes, "on another panel"))
     return problems
 
 
@@ -154,7 +199,8 @@ def report(figure, name: str = "", edges: bool = False) -> int:
     """Print each text collision in `figure`; returns how many."""
     problems = overlaps(figure, edges)
     for a, b, why in problems:
-        other = f" <-> {b.get_text()[:40]!r}" if b is not None else ""
+        other = (f" <-> {b.get_text()[:40]!r}" if isinstance(b, Text)
+                 else " <-> a neighbouring panel" if b is not None else "")
         print(f"TEXT {why.upper()} {name}: {a.get_text()[:40]!r}{other}", flush=True)
     if not problems:
         print(f"TEXT OK {name}: no overlaps", flush=True)
@@ -163,41 +209,54 @@ def report(figure, name: str = "", edges: bool = False) -> int:
 
 # ----------------------------------------------------------------------------- fixing
 
-def _wrapped(s: str) -> str:
-    """s on two lines, split at the space nearest its middle (never inside $...$)."""
-    if "\n" in s:
+def _wrapped(s: str, lines: int = 2) -> str:
+    """s on `lines` lines, split at the spaces nearest equal lengths (never
+    inside $...$); a deliberate wide gap ("predicted   R² = 0.52") first."""
+    if "\n" in s or lines < 2:
         return s
     gap = re.search(r"(?<=\S) {2,}(?=\S)", s)
-    if gap and s[:gap.start()].count("$") % 2 == 0:
+    if lines == 2 and gap and s[:gap.start()].count("$") % 2 == 0:
         return f"{s[:gap.start()]}\n{s[gap.end():]}"
     spaces, inside = [], False
     for i, ch in enumerate(s):
         if ch == "$":
             inside = not inside
-        elif ch == " " and not inside and 0 < i < len(s) - 1:
+        elif ch == " " and not inside and 0 < i < len(s) - 1 and s[i - 1] != " ":
             spaces.append(i)
     if not spaces:
         return s
-    visible = len(re.sub(r"\$[^$]*\$", "xx", s))
-    middle = visible / 2 * len(s) / max(visible, 1)
-    cut = min(spaces, key=lambda i: abs(i - middle))
-    head, tail = s[:cut].rstrip(), s[cut:].lstrip()
-    return f"{head}\n{tail}"
+    cuts = []
+    for k in range(1, lines):
+        target = len(s) * k / lines
+        free = [i for i in spaces if i not in cuts and (not cuts or i > cuts[-1])]
+        if not free:
+            break
+        cuts.append(min(free, key=lambda i: abs(i - target)))
+    parts, last = [], 0
+    for cut in cuts:
+        parts.append(s[last:cut].strip())
+        last = cut
+    parts.append(s[last:].strip())
+    return "\n".join(p for p in parts if p)
 
 
 def wrap(figure) -> int:
-    """Two lines for any panel title, axis label or colour-bar label longer
-    than its panel or bar that also touches other text. Returns how many."""
-    touching = {id(t) for a, b, _ in overlaps(figure) for t in (a, b) if t is not None}
+    """Two lines for a panel title or axis label longer than its panel that
+    touches other text, and two or three for any colour-bar label longer than
+    its bar (always, so matching bars look alike). Returns how many."""
+    touching = {id(t) for a, b, _ in overlaps(figure) for t in (a, b) if isinstance(t, Text)}
     renderer = _renderer(figure)
     count = 0
 
-    def fit_to(text, length, along_x=True):
+    def fit_to(text, length, along_x=True, always=False):
         nonlocal count
+        if not text.get_text().strip() or "\n" in text.get_text():
+            return
         box = _extent(text, renderer)
         size = box.width if along_x else box.height
-        if id(text) in touching and text.get_text().strip() and size > length * 1.02:
-            new = _wrapped(text.get_text())
+        if (always or id(text) in touching) and size > length * 1.02:
+            lines = int(np.ceil(size / length)) if always else 2
+            new = _wrapped(text.get_text(), max(2, min(lines, 3)))
             if new != text.get_text():
                 text.set_text(new)
                 count += 1
@@ -211,7 +270,8 @@ def wrap(figure) -> int:
         if hasattr(axes, "_colorbar"):
             vertical = getattr(axes._colorbar, "orientation", "vertical") == "vertical"
             label = axes.yaxis.label if vertical else axes.xaxis.label
-            fit_to(label, box.height if vertical else box.width, along_x=not vertical)
+            # longer than its bar: always wrapped, so twin bars match
+            fit_to(label, box.height if vertical else box.width, along_x=not vertical, always=True)
             continue
         fit_to(axes.title, box.width)
         fit_to(axes.xaxis.label, box.width)
@@ -232,6 +292,9 @@ def _own_text(axis, renderer):
 
 def _owner_axes(axes):
     """A colour bar's axes belong to the panel the bar is for."""
+    parents = getattr(axes, "_colorbar_info", {}).get("parents") if hasattr(axes, "_colorbar") else None
+    if parents:
+        return parents[0]  # the panel it was made for (figure.colorbar(ax=...))
     if hasattr(axes, "_colorbar"):
         mappable = getattr(axes._colorbar, "mappable", None)
         if getattr(mappable, "axes", None) is not None:
@@ -250,12 +313,14 @@ def place_letters(figure) -> int:
         axis = letter._panel["axis"]
         quad = _quad(letter, renderer)
         others = [q for t, q in _texts(figure, renderer)
-                  if t is not letter and getattr(t, "_panel", {}).get("kind") != "letter"]
-        own = [q for q in others if _touch(quad, q)]
+                  if t is not letter and getattr(t, "_panel", {}).get("kind") != "letter"
+                  and _owner(t) in (axis, None)]  # own panel or figure title; a neighbour's is for space()
+        clear = CLEARANCE * letter.get_fontsize() * figure.dpi / 72.0
+        own = [q for q in others if _touch(quad, q, -clear)]
         if not own:
             continue
         left = min(q[:, 0].min() for q in own)
-        shift = quad[:, 0].max() - left + GAP  # px to move left
+        shift = quad[:, 0].max() - left + clear  # px to move left
         if shift > 0.4 * axis.get_window_extent(renderer).width:
             continue  # too far: leave it to more space between panels
         column = [t for t in letters
@@ -312,7 +377,8 @@ def inside(figure) -> int:
 
 def ticks(figure) -> int:
     """Tilt an axis's tick labels 30 degrees when neighbours touch (two-line
-    labels go onto one line first, as tilted stacks still collide)."""
+    labels go onto one line first, as tilted stacks still collide), and pad
+    the x and y labels out where they meet at a corner."""
     renderer = _renderer(figure)
     hidden = _index(figure)
     tilted = 0
@@ -323,6 +389,16 @@ def ticks(figure) -> int:
                   if id(t) not in hidden and t.get_visible() and t.get_text().strip()]
         if len(labels) < 2 or any(abs(t.get_rotation()) > 0.5 for t in labels):
             continue
+        ylabels = [t for t in axes.yaxis.get_ticklabels()
+                   if id(t) not in hidden and t.get_visible() and t.get_text().strip()]
+        for _ in range(6):
+            if not any(_touch(_quad(a, renderer), _quad(b, renderer)) for a in labels for b in ylabels):
+                break
+            for axis in (axes.xaxis, axes.yaxis):  # labels meet at the corner: pad both out
+                pad = axis.get_major_ticks()[0].get_pad() if axis.get_major_ticks() else 3.5
+                axis.set_tick_params(which="both", pad=pad + 1.5)
+            tilted += 1
+            renderer = _renderer(figure)
         quads = sorted((_quad(t, renderer) for t in labels), key=lambda q: q[:, 0].min())
         if any(_touch(a, b) for a, b in zip(quads, quads[1:])):
             texts = [t.get_text() for t in axes.xaxis.get_ticklabels()]
@@ -431,7 +507,8 @@ def space(figure, problems) -> bool:
     for a, b, why in problems:
         if b is None:
             continue
-        oa, ob = _owner(a), _owner(b)
+        oa = _owner(a)
+        ob = _owner(b) if isinstance(b, Text) else _owner_axes(b)
         if oa is None or ob is None or oa is ob:
             continue
         pa, pb = oa.get_position(), ob.get_position()
@@ -466,6 +543,12 @@ def space(figure, problems) -> bool:
             update["hspace"] = params.hspace + STEP
         if not update:
             continue
+        if "hspace" in update:
+            # Rows apart: make the figure taller. Its width sets the print
+            # scale, so text keeps its printed size; and panels that keep
+            # their aspect (maps) get real room, which hspace alone does not
+            # give them when their width limits their size.
+            figure.set_figheight(figure.get_figheight() * (1 + STEP))
         grid.update(**update)
         for ax, (fx, fy, fw, fh) in placed.items():
             cell = ax.get_subplotspec().get_position(figure)
@@ -497,8 +580,66 @@ def _hide_drawing(figure):
     return hidden
 
 
+def density(figure) -> dict:
+    """How much of each panel its labels take: the area of the text that
+    labels a panel (ticks, axis and colour-bar labels, legend, map coordinates;
+    not titles or panel letters) over the panel's plot area. Text area grows
+    with the square of font size, so a font that gives density d now gives
+    d * (new / now) ** 2. Returns {"median", "panels": [...]}."""
+    renderer = _renderer(figure)
+    hidden = _index(figure)
+    owner = figure._textfit_owner
+    for axes in figure.axes:  # cartopy coordinate labels, made at draw time
+        for gl in getattr(axes, "_gridliners", []):
+            for text in getattr(gl, "label_artists", []):
+                owner[id(text)] = axes
+    texts = list(figure.findobj(Text))
+    for axes in figure.axes:
+        for gl in getattr(axes, "_gridliners", []):
+            texts += list(getattr(gl, "label_artists", []))
+    area = {}
+    for text in texts:
+        if id(text) in hidden or not text.get_visible() or not text.get_text().strip():
+            continue
+        tag = getattr(text, "_panel", None)
+        panel = owner.get(id(text))
+        if panel is None or tag is not None or text is panel.title or panel.figure is None:
+            continue
+        rotation = text.get_rotation()
+        text.set_rotation(0)
+        box = _extent(text, renderer)
+        text.set_rotation(rotation)
+        area[panel] = area.get(panel, 0.0) + box.width * box.height
+    sizes = {}
+    for text in texts:
+        panel = owner.get(id(text))
+        if panel is not None and getattr(text, "_panel", None) is None and text.get_visible() \
+                and text.get_text().strip() and id(text) not in hidden:
+            sizes.setdefault(panel, []).append(text.get_fontsize())
+    panels, widths = [], []
+    for axes in figure.axes:
+        if hasattr(axes, "_colorbar") or not axes.get_visible():
+            continue
+        box = axes.get_window_extent(renderer)
+        if box.width * box.height > 0:
+            panels.append(area.get(axes, 0.0) / (box.width * box.height))
+            # the panel's width in heights of its own largest label text
+            font = max(sizes.get(axes, [0.0]) + [t.get_fontsize() for t in figure.texts
+                                                 if getattr(t, "_panel", {}).get("axis") is axes])
+            if font > 0:
+                widths.append(min(box.width, box.height * 2) * 72.0 / figure.dpi / font)
+    return {"median": float(np.median(panels)) if panels else 0.0, "panels": panels,
+            "ems": float(np.median(widths)) if widths else 0.0, "ems_min": float(min(widths)) if widths else 0.0,
+            "panel_ems": widths}
+
+
 def fit(figure, name: str = "", edges: bool = False, quiet: bool = False) -> int:
     """Fix colliding text in `figure` as described above; returns what is left."""
+    if not quiet:
+        d = density(figure)
+        print(f"TEXT DENSITY {name}: median {d['median']:.4f} ems {d['ems']:.1f} min {d['ems_min']:.1f} panels "
+              + " ".join(f"{p:.4f}" for p in d["panels"]) + " | ems "
+              + " ".join(f"{w:.1f}" for w in d["panel_ems"]), flush=True)
     hidden = _hide_drawing(figure)
     try:
         return _fit(figure, name, edges, quiet)
@@ -508,20 +649,75 @@ def fit(figure, name: str = "", edges: bool = False, quiet: bool = False) -> int
 
 
 def _fit(figure, name, edges, quiet):
-    steps = {"wrap": wrap(figure), "letters": 0, "ticks": 0, "inside": 0, "repel": 0,
+    steps = {"wrap": 0, "letters": 0, "ticks": 0, "inside": 0, "repel": 0,
              "legends": 0, "space": 0}
     for _ in range(MAX_STEPS):
+        steps["wrap"] += wrap(figure)
         steps["letters"] += place_letters(figure)
         steps["ticks"] += ticks(figure)
         steps["inside"] += inside(figure)
         steps["repel"] += repel(figure)
         steps["legends"] += legends(figure)
         problems = overlaps(figure, edges)
+        if os.environ.get("TEXTFIT_DEBUG"):
+            for a, b, why in problems:
+                print("  step", steps["space"], why, repr(a.get_text()[:30]),
+                      repr(b.get_text()[:30]) if isinstance(b, Text) else b, flush=True)
         if not problems or not space(figure, problems):
             break
         steps["space"] += 1
+    else:
+        # the last spacing step moved panels: settle letters and notes once more
+        steps["letters"] += place_letters(figure)
+        steps["repel"] += repel(figure)
     if not quiet:
         done = ", ".join(f"{k} {v}" for k, v in steps.items() if v)
         if done:
             print(f"TEXT FIXED {name}: {done}", flush=True)
     return report(figure, name, edges) if not quiet else len(overlaps(figure, edges))
+
+
+def pad_cartopy_labels(points: float = 2.0) -> None:
+    """Cartopy hides a coordinate label that overlaps another one, but lets
+    labels touch ("60°W0°"). Make it keep `points` of space between them.
+    Cartopy redraws its labels on every draw, so this has to be its rule."""
+    try:
+        from cartopy.mpl import gridliner
+    except ImportError:
+        return
+    label_class = gridliner.Label
+    if getattr(label_class, "_textfit_padded", None) == points:
+        return
+    original = getattr(label_class, "_textfit_original", label_class.check_overlapping)
+
+    def check_overlapping(self, label):
+        overlapping = self.path.intersects_path(label.path)
+        if not overlapping:
+            pad = points * self.artist.figure.dpi / 72.0 / 2.0
+            overlapping = self.path.get_extents().padded(pad).overlaps(label.path.get_extents().padded(pad))
+        if overlapping:
+            self.set_visible(False)
+        return overlapping
+
+    label_class._textfit_original = original
+    label_class.check_overlapping = check_overlapping
+    label_class._textfit_padded = points
+
+
+TARGET_WIDTH = 15.0  # panels read well at 15 or more text heights wide (eHDD figures, 2026-11-20)
+
+
+def suggest_size(figure, printed_pt: float = 8.0, target: float = TARGET_WIDTH,
+                 low: float = 6.0, high: float = 8.0, step: float = 1.0) -> float:
+    """The printed font size this figure should use, from its narrowest panel.
+
+    `printed_pt` is what its main text prints at now. A panel `w` text heights
+    wide at that size is `w * now / new` wide at `new`; pick the size that
+    brings the narrowest panel to `target`, kept within [low, high] and
+    rounded down to `step`. Words should never be as big as the panels."""
+    narrowest = density(figure)["ems_min"]
+    if narrowest <= 0:
+        return high
+    size = printed_pt * narrowest / target
+    size = np.floor(size / step + 1e-9) * step
+    return float(min(high, max(low, size)))

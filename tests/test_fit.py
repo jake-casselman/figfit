@@ -28,3 +28,13 @@ def test_tilts_crowded_two_line_ticks():
     ax.set_xticks([1, 2, 3, 4], ["1\n(90)", "2\n(1,214)", "3\n(776)", "4\n(256)"], fontsize=16)
     assert figfont.fit(fig, quiet=True) == 0
     assert ax.get_xticklabels()[1].get_text() == "2 (1,214)"
+
+
+def test_suggest_size_shrinks_small_panels():
+    big, ax = plt.subplots(figsize=(6, 4))
+    ax.set_xlabel("label", fontsize=8)
+    small, axes = plt.subplots(1, 4, figsize=(5, 1.5))
+    for a in axes:
+        a.set_xlabel("label", fontsize=8)
+    assert figfont.suggest_size(big) == 8.0
+    assert figfont.suggest_size(small) == 6.0

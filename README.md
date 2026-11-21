@@ -44,6 +44,13 @@ Panel letters and titles placed with `fig.text` can be tagged so `fit` knows the
 `t._panel = {"axis": ax, "kind": "letter" or "title", "dx": ..., "dy": ...}` (offsets in
 figure fractions from the panel's top-left corner).
 
+How big should the text be? 8 pt is the published average, but it comes mostly from
+figures with a few large panels. On a grid of small maps 8 pt words are as big as the maps.
+`figfont.suggest_size(fig, printed_pt=8)` measures each panel's width in heights of its own
+text and picks the size (6 to 8 pt, whole points) that keeps the narrowest panel at least 15
+text heights wide. 15 is the floor of the eHDD figures that read well; the two that did not
+were 10 and 11. (A text-area-to-panel-area ratio was tried first and did not separate them.)
+
 The reference (`figfont/reference.json`) holds summary numbers only: 111 journal articles from
 62 journals, median 8.0 pt as printed, middle half of papers 7.4 to 9.0 pt.
 
