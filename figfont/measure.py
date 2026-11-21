@@ -80,6 +80,28 @@ def pdf_figure_text(path: str) -> Result:
     return Result(path.rsplit("/", 1)[-1], "text", sizes)
 
 
+def figure_pdf_text(path: str, printed_width: float) -> Result:
+    """Exact printed sizes of the text in a vector figure PDF placed `printed_width` inches wide.
+
+    Empty when the figure's text is part of an image (use figure_ocr then).
+    """
+    page = pymupdf.open(path)[0]
+    factor = printed_width * 72 / page.rect.width
+    sizes = [round(span["size"] * factor, 2)
+             for block in page.get_text("dict")["blocks"] for line in block.get("lines", [])
+             for span in line["spans"] if span["text"].strip()]
+    return Result(path.rsplit("/", 1)[-1], "text", sizes)
+
+
+def figure(path: str, printed_width: float) -> Result:
+    """Exact sizes from a vector PDF when it has text, otherwise OCR."""
+    if path.lower().endswith(".pdf"):
+        result = figure_pdf_text(path, printed_width)
+        if result.n >= 5:
+            return result
+    return figure_ocr(path, printed_width)
+
+
 # ----------------------------------------------------------------------------- OCR
 
 def render(path: str, printed_width: float, dpi: int = DPI) -> Image.Image:

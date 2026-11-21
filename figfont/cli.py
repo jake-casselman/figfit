@@ -38,7 +38,7 @@ def main(argv=None) -> int:
         results = []
         for arg in a.figures:
             path, _, width = arg.rpartition("@") if "@" in arg else (arg, "", "")
-            results.append(measure.figure_ocr(path or arg, float(width) if width else a.width))
+            results.append(measure.figure(path or arg, float(width) if width else a.width))
     else:
         results = [measure.pdf_figure_text(p) for p in a.pdfs]
     rows = [compare.verdict(r, a.journal) for r in results]
