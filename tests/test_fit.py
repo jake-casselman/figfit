@@ -206,6 +206,48 @@ def test_boxed_note_with_no_clear_place_stays_and_is_reported(capsys):
     assert "TEXT ON DATA lines: 'NDJFM'" in capsys.readouterr().out
 
 
+def _slab_above(line):
+    """A note just under a slab; the short way clear is down, the long way is left."""
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.set_xlim(0, 100)
+    ax.set_ylim(-50, 50)
+    ax.fill([40, 100, 100, 40], [12, 12, 50, 50], color="tan", edgecolor="black")
+    if line:
+        ax.axhline(5, color="gray", linestyle="--")
+    return fig, ax, ax.text(36, 8, "NDJFM", ha="left", va="bottom", bbox=BOX)
+
+
+def test_boxed_note_stays_on_its_side_of_a_line_across_the_panel():
+    fig, ax, note = _slab_above(line=False)
+    figfont.fit(fig, quiet=True)
+    assert note.get_position()[0] == 36 and note.get_position()[1] < 8  # down is the short way
+    fig, ax, note = _slab_above(line=True)
+    assert _on_drawing(fig, ax, note) > 0
+    figfont.fit(fig, quiet=True)
+    assert abs(note.get_position()[1] - 8) < 1e-6 and note.get_position()[0] < 36  # left, not over the line
+    box = note.get_bbox_patch().get_window_extent(fig.canvas.get_renderer())
+    assert box.y0 > ax.transData.transform((0, 5))[1]
+
+
+def test_boxed_note_in_a_narrow_gap_takes_the_room_there_is():
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.set_xlim(0, 100)
+    ax.set_ylim(-50, 50)
+    note = ax.text(50, 0, "NDJFM", ha="left", va="center", bbox=BOX)
+    fig.canvas.draw()
+    box = note.get_bbox_patch().get_window_extent(fig.canvas.get_renderer())
+    to_data = ax.transData.inverted()
+    left = to_data.transform((box.x0 - 8, 0))[0]   # the gap is 6 px wider than the box:
+    right = to_data.transform((box.x1 - 2, 0))[0]  # too narrow for the full clearance on both sides
+    ax.fill([0, left, left, 0], [-50, -50, 50, 50], color="tan")
+    ax.fill([right, 100, 100, right], [-50, -50, 50, 50], color="tan")
+    assert _on_drawing(fig, ax, note) > 0
+    moved, stuck = figfont.clear_notes(fig)
+    assert moved == 1 and not stuck
+    assert _on_drawing(fig, ax, note) == 0
+    assert note.get_position()[0] < 50 and abs(note.get_position()[1]) < 1e-6
+
+
 def test_shapes_are_found_the_same_without_scipy(monkeypatch):
     import builtins
     from figfont import textfit

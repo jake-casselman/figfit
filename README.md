@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img alt="version 0.2.1" src="https://img.shields.io/badge/version-0.2.1-2a78d6">
+  <img alt="version 0.2.2" src="https://img.shields.io/badge/version-0.2.2-2a78d6">
   <img alt="Python 3.10 or later" src="https://img.shields.io/badge/python-3.10%2B-2a78d6">
   <img alt="works with matplotlib" src="https://img.shields.io/badge/works%20with-matplotlib-2a78d6">
   <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-1baf7a">
@@ -381,8 +381,11 @@ taller figure.
 
 A note with a box round it, such as a season label on a map, that cuts into the edge of something
 drawn (a coast, a curve) moves the shortest way clear of it. Notes set in line with it move too,
-so they stay in line. A note may sit on specks smaller than itself (islands, markers), and a note
-written on the data on purpose stays where it is. `clear_notes(fig)` runs this step on its own.
+so they stay in line. A note never moves onto or over a line drawn right across its panel, such
+as an equator or a zero line. In a gap too narrow for the usual clearance, it takes the place
+with the most room round it. A note may sit on specks smaller than itself (islands, markers), and
+a note written on the data on purpose stays where it is. `clear_notes(fig)` runs this step on its
+own.
 
 <p align="center"><img src="docs/images/fit_notes.png" width="880" alt="Season labels on a world map that cut into the coast, moved onto open ocean."></p>
 

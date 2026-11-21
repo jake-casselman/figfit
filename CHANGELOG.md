@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2 (2026-11-21)
+
+- `fit`: a boxed note never moves onto or over a line drawn right across its panel (an equator,
+  a zero line), so a label stays on its own side.
+- `fit`: a boxed note in a gap too narrow for the usual clearance takes the place with the most
+  room round it, where before it stayed on the drawing.
+
 ## 0.2.1 (2026-11-21)
 
 - `set_printed_fonts` also sets left and right panel titles, legend titles, figure legends and

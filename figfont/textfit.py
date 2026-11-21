@@ -773,11 +773,35 @@ def _things(ink, least):
     return found
 
 
+def _dividers(axes, renderer):
+    """Straight lines drawn right across a panel (an equator, a zero line), as
+    ("y", height) or ("x", place) in display px. A note stays on its side of one."""
+    panel = axes.get_window_extent(renderer)
+    found = []
+    for line in axes.lines:
+        if not line.get_visible() or len(line.get_xdata()) < 2:
+            continue
+        try:
+            box = line.get_window_extent(renderer)
+        except Exception:
+            continue
+        if not np.isfinite(box.extents).all():
+            continue
+        if box.width >= 0.9 * panel.width and box.height <= 2:
+            found.append(("y", (box.y0 + box.y1) / 2))
+        elif box.height >= 0.9 * panel.height and box.width <= 2:
+            found.append(("x", (box.x0 + box.x1) / 2))
+    return found
+
+
 def clear_notes(figure):
     """Move a boxed note that cuts into (or all but touches) something its panel draws the shortest
     way (left, right, down or up, at most REACH of its width) to where its
     box, with CLEARANCE round it, is clear of the drawing and of other text
-    and still inside the panel. Returns (notes moved, notes that could not be)."""
+    and still inside the panel. In a gap too narrow for that, it takes the
+    place with the most room round it. A note never moves onto or
+    over a line drawn right across its panel (an equator, a zero line).
+    Returns (notes moved, notes that could not be)."""
     from matplotlib.transforms import Bbox
     renderer = _renderer(figure)
     groups = _boxed_notes(figure, renderer)
@@ -815,9 +839,14 @@ def clear_notes(figure):
         if not any(cut(things, box, clear / 2).any() for box in boxes):
             continue  # clear already; within half the clearance counts as touching
         others = [q for t, q in _texts(figure, renderer) if t not in texts]
+        dividers = _dividers(axes, renderer)
 
-        def free(dx, dy):
+        def free(dx, dy, clear):
             for box in boxes:
+                for way, at in dividers:
+                    low, high, move = (box.y0, box.y1, dy) if way == "y" else (box.x0, box.x1, dx)
+                    if low >= at and low + move - GAP < at or high <= at and high + move + GAP > at:
+                        return False  # onto or over a line across the panel
                 at = Bbox.from_extents(box.x0 + dx - clear, box.y0 + dy - clear,
                                        box.x1 + dx + clear, box.y1 + dy + clear)
                 if at.x0 < x0 or at.y0 < y0 or at.x1 > x1 or at.y1 > y1:
@@ -832,8 +861,10 @@ def clear_notes(figure):
             return True
 
         step = max(1.0, 0.05 * size)
-        shift = next(((dx, dy) for d in np.arange(step, reach + step, step)
-                      for dx, dy in ((-d, 0.0), (d, 0.0), (0.0, -d), (0.0, d)) if free(dx, dy)), None)
+        # with the full clearance round it; in a gap too narrow for that, with the most that fits
+        shift = next(((dx, dy) for room in (clear, 0.75 * clear, 0.5 * clear, 0.25 * clear, min(GAP, clear))
+                      for d in np.arange(step, reach + step, step)
+                      for dx, dy in ((-d, 0.0), (d, 0.0), (0.0, -d), (0.0, d)) if free(dx, dy, room)), None)
         if shift is None:
             stuck += texts
             continue
