@@ -6,7 +6,7 @@ def test_round_trip():
     assert abs(scale.printed_pt(drawn, 26.3, 5.15) - 8) < 1e-9
 
 
-def test_ehdd_fig1_old_labels_print_near_3pt():
+def test_wide_figure_prints_small():
     assert 2.8 < scale.printed_pt(15, 26.3, 5.15) < 3.1
 
 

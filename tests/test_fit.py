@@ -13,7 +13,7 @@ def test_fit_clears_collisions():
         ax = fig.add_subplot(grid[k // 2, k % 2])
         bar = fig.colorbar(ax.imshow(np.random.rand(4, 4)), ax=ax)
         bar.set_label("Colour bar label (units)")
-        ax.set_ylabel("Hourly eHDD (W m$^{-2}$)")
+        ax.set_ylabel("Hourly demand (W m$^{-2}$)")
         box = ax.get_position()
         letter = fig.text(box.x0 - 0.02, box.y1 + 0.01, "abcd"[k], fontweight="bold")
         letter._panel = {"axis": ax, "kind": "letter", "dx": -0.02, "dy": 0.01}
@@ -70,13 +70,13 @@ def test_legend_on_data_moves_to_an_empty_corner():
 
 def test_label_keeps_clear_of_its_numbers_and_long_label_rewraps():
     fig, ax = plt.subplots(figsize=(6, 3.6))
-    ax.set_ylabel("People\n(thousands per unit eHDD)", fontsize=20, labelpad=0)
+    ax.set_ylabel("People\n(thousands per unit demand)", fontsize=20, labelpad=0)
     ax.tick_params(labelsize=20)
     letter = fig.text(0.02, 0.9, "e", fontsize=20, fontweight="bold")
     letter._panel = {"axis": ax, "kind": "letter", "dx": -0.1, "dy": 0.02}
     figfont.fit(fig, quiet=True)
     fig.canvas.draw()
-    assert ax.yaxis.label.get_text() == "People (thousands\nper unit eHDD)"
+    assert ax.yaxis.label.get_text() == "People (thousands\nper unit demand)"
     gap = min(t.get_window_extent().x0 for t in ax.get_yticklabels()) - ax.yaxis.label.get_window_extent().x1
     assert gap >= 0.29 * 20 * fig.dpi / 72
 
@@ -221,3 +221,32 @@ def test_shapes_are_found_the_same_without_scipy(monkeypatch):
     without = textfit._things(ink, 12)
     assert (with_scipy == without).all()
     assert without[20, 30] and without[31, 57] and not without[6, 6] and not without[10, 30]
+
+
+def test_label_running_off_the_figure_goes_onto_two_lines():
+    fig, ax = plt.subplots(figsize=(4, 2.6), layout="constrained")
+    ax.set_ylabel("Heating degree days per year (degree days)", fontsize=14)
+    assert "\n" not in ax.yaxis.label.get_text()
+    figfont.fit(fig, quiet=True)
+    assert ax.yaxis.label.get_text().count("\n") == 1
+    fig.canvas.draw()
+    box = ax.yaxis.label.get_window_extent()
+    assert box.y0 >= 0 and box.y1 <= fig.bbox.y1
+
+
+def test_label_longer_than_its_panel_but_on_the_figure_stays():
+    fig, ax = plt.subplots(figsize=(6, 4))
+    fig.subplots_adjust(left=0.4, right=0.6)
+    ax.set_xlabel("A label wider than this narrow panel")
+    figfont.fit(fig, quiet=True)
+    assert "\n" not in ax.xaxis.label.get_text()
+
+
+def test_wide_tick_names_tilt_until_they_part():
+    fig, ax = plt.subplots(figsize=(2.6, 2.6))
+    names = ["Detached", "Semi-detached", "Terraced", "Apartment", "Mobile home", "Other"]
+    ax.bar(names, [41, 23, 17, 12, 5, 2])
+    ax.tick_params(labelsize=13)
+    assert figfont.fit(fig, quiet=True) == 0
+    angles = {t.get_rotation() for t in ax.get_xticklabels()}
+    assert len(angles) == 1 and angles.pop() > 30  # 30 degrees was not enough here

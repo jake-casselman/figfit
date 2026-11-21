@@ -1,7 +1,6 @@
 """Keep figure text from colliding after a font change.
 
-A figure laid out at one font size and then printed bigger (plotstyle.scale_text)
-keeps its old spacing, so labels can land on each other. fit() finds every
+A figure laid out at one font size and then given bigger text keeps its old spacing, so labels can land on each other. fit() finds every
 pair of touching text and fixes it with the smallest change that works, in
 this order:
 
@@ -9,13 +8,14 @@ this order:
             empty corner of the panel, or, when there is none, under the
             panel with its entries in a row;
   1. wrap   a panel title, axis label or colour-bar label longer than its
-            panel or bar, that touches other text, goes onto two lines
-            (the words stay the same);
+            panel or bar, that touches other text or runs off the figure,
+            goes onto two lines (the words stay the same);
      pads   an axis or colour-bar label keeps 0.3 of its font size from
             its tick labels (a pad set in points does not grow with the font);
   2. letters a panel letter on its own axis labels moves left, past them,
             and so do the other letters in its column, so they stay aligned;
-  3. ticks  tick labels that touch their neighbours tilt 30 degrees;
+  3. ticks  tick labels that touch their neighbours tilt 30 degrees (45, 60
+            or 90 when they still touch);
      inside a note inside a panel that runs past its side moves back in;
      repel  two notes inside one panel push apart vertically;
      legend a legend that touches a label moves away from it;
@@ -46,6 +46,7 @@ from matplotlib.text import Annotation, Text
 GAP = 3.0       # px kept between text after a fix
 STEP = 0.04     # gridspec wspace / hspace added per spacing step
 MAX_STEPS = 30
+TILTS = (30, 45, 60, 90)  # degrees tried, in turn, for tick labels that touch
 
 
 # ----------------------------------------------------------------------------- geometry
@@ -252,10 +253,12 @@ def _wrapped(s: str, lines: int = 2) -> str:
 
 def wrap(figure) -> int:
     """Two lines for a panel title or axis label longer than its panel that
-    touches other text, and two or three for any colour-bar label longer than
-    its bar (always, so matching bars look alike). Returns how many."""
+    touches other text or runs off the figure, and two or three for any
+    colour-bar label longer than its bar (always, so matching bars look
+    alike). Returns how many."""
     touching = {id(t) for a, b, _ in overlaps(figure) for t in (a, b) if isinstance(t, Text)}
     renderer = _renderer(figure)
+    edge = figure.bbox
     count = 0
 
     def fit_to(text, length, along_x=True, always=False):
@@ -265,7 +268,8 @@ def wrap(figure) -> int:
             return
         box = _extent(text, renderer)
         size = box.width if along_x else box.height
-        if not (always or id(text) in touching) or size <= length * 1.02:
+        off = (box.x0 < edge.x0 or box.x1 > edge.x1) if along_x else (box.y0 < edge.y0 or box.y1 > edge.y1)
+        if not (always or off or id(text) in touching) or size <= length * 1.02:
             return
         if "\n" not in was:
             lines = int(np.ceil(size / length)) if always else 2
@@ -600,7 +604,8 @@ def inside(figure) -> int:
 
 
 def ticks(figure) -> int:
-    """Tilt an axis's tick labels 30 degrees when neighbours touch (two-line
+    """Tilt an axis's tick labels when neighbours touch: 30 degrees, or 45, 60
+    or 90 when wide labels on close ticks still touch at 30 (two-line
     labels go onto one line first, as tilted stacks still collide), and pad
     the x and y labels out where they meet at a corner."""
     renderer = _renderer(figure)
@@ -629,10 +634,16 @@ def ticks(figure) -> int:
             if any("\n" in t for t in texts):
                 # tilted, two-line labels still collide: one line each
                 axes.xaxis.set_ticks(axes.get_xticks(), [t.replace("\n", " ") for t in texts])
-            for t in axes.xaxis.get_ticklabels():
-                t.set_rotation(30)
-                t.set_ha("right")
-                t.set_rotation_mode("anchor")
+            for angle in TILTS:  # the gentlest tilt that parts them
+                for t in axes.xaxis.get_ticklabels():
+                    t.set_rotation(angle)
+                    t.set_ha("right")
+                    t.set_va("center" if angle == 90 else "top")
+                    t.set_rotation_mode("anchor")
+                renderer = _renderer(figure)
+                quads = sorted((_quad(t, renderer) for t in labels), key=lambda q: q[:, 0].min())
+                if not any(_touch(a, b) for a, b in zip(quads, quads[1:])):
+                    break
             tilted += 1
     return tilted
 
@@ -945,7 +956,9 @@ def density(figure) -> dict:
     labels a panel (ticks, axis and colour-bar labels, legend, map coordinates;
     not titles or panel letters) over the panel's plot area. Text area grows
     with the square of font size, so a font that gives density d now gives
-    d * (new / now) ** 2. Returns {"median", "panels": [...]}."""
+    d * (new / now) ** 2. Also how wide each panel is in heights of its own
+    text. Returns {"median", "panels": [...]} for the areas and {"ems",
+    "ems_min", "panel_ems": [...]} for the widths."""
     renderer = _renderer(figure)
     hidden = _index(figure)
     owner = figure._textfit_owner
@@ -1081,7 +1094,7 @@ def pad_cartopy_labels(points: float = 2.0) -> None:
     label_class._textfit_padded = points
 
 
-TARGET_WIDTH = 15.0  # panels read well at 15 or more text heights wide (eHDD figures, 2026-11-20)
+TARGET_WIDTH = 15.0  # panels read well at 15 or more text heights wide
 
 
 def suggest_size(figure, printed_pt: float = 8.0, target: float = TARGET_WIDTH,

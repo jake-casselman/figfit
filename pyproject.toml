@@ -1,13 +1,29 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "figfont"
-version = "0.2.0"
-description = "Check and fix the printed font size of figures in papers"
+version = "0.2.1"
+description = "Figure text that prints at the size you meant: measure it, compare it with published papers, set it, and clear the collisions"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Jake Casselman" }]
 requires-python = ">=3.10"
 dependencies = ["pymupdf", "numpy", "pillow", "matplotlib"]
+keywords = ["matplotlib", "figures", "font size", "scientific publishing", "typography"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+
+[project.urls]
+Homepage = "https://github.com/jake-casselman/figfont"
+Issues = "https://github.com/jake-casselman/figfont/issues"
+Changelog = "https://github.com/jake-casselman/figfont/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 mac = ["ocrmac"]
