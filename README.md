@@ -18,8 +18,8 @@
 </h3>
 
 <p align="center">
-  One Jupyter notebook takes a figure from first draft to the printed page<br>
-  and calls every function once. Its output is saved, so it reads on GitHub as it is.
+  It starts with the problem: what your figure's text looks like on the journal's page.<br>
+  Then it fixes one figure step by step and says what every number means. It reads on GitHub as it is.
 </p>
 
 <p align="center">
@@ -29,7 +29,7 @@
 
 | Start with | What it is |
 |---|---|
-| [**Notebook tour**](docs/tour.ipynb) | Every function, run once on one figure, with its output and pictures |
+| [**Notebook tour**](docs/tour.ipynb) | The problem, then one figure fixed step by step, with every output explained. You only need to know matplotlib |
 | [Quick start](#quick-start) | The three lines most figures need |
 | [Reference](#1-work-out-the-size) | Each function with a picture of what it does |
 
@@ -100,8 +100,8 @@ figfont.figure("fig01.pdf", printed_width=5.15).summary()
 The full script is [`docs/examples/quickstart.py`](docs/examples/quickstart.py). It draws the
 three-panel figure at the top of this page in matplotlib's own style.
 
-The [notebook tour](docs/tour.ipynb) takes that same figure from first draft to the page and calls
-every function once, in the order you would reach for it. The sections below are the reference for
+The [notebook tour](docs/tour.ipynb) takes that same figure from first draft to the page one step
+at a time, and says what each number it prints means. The sections below are the reference for
 each function.
 
 ---

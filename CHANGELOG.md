@@ -2,8 +2,8 @@
 
 ## 0.2.3 (2026-11-21)
 
-- `docs/tour.ipynb`: a notebook that takes one figure from first draft to the page and calls
-  every function once, with its output saved.
+- `docs/tour.ipynb`: a notebook that shows a figure as it prints on the journal's page, then
+  fixes it step by step and explains every number it prints. Its output is saved.
 - A file can be given as a `pathlib.Path` as well as a string.
 - `fit`, `overlaps`, `density` and `clear_notes` work on a figure a notebook has already shown,
   and on a `Figure` made without pyplot.
