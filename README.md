@@ -13,10 +13,25 @@
   <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-1baf7a">
 </p>
 
+<h3 align="center">
+  <a href="docs/tour.ipynb">Start here: the notebook tour &rarr;</a>
+</h3>
+
+<p align="center">
+  One Jupyter notebook takes a figure from first draft to the printed page<br>
+  and calls every function once. Its output is saved, so it reads on GitHub as it is.
+</p>
+
 <p align="center">
   <img src="docs/images/hero.png" width="880"
        alt="One figure three times: as drawn, with 4 pt text in print; after set_printed_fonts, with 7 to 8 pt text that collides; after fit, with the collisions gone.">
 </p>
+
+| Start with | What it is |
+|---|---|
+| [**Notebook tour**](docs/tour.ipynb) | Every function, run once on one figure, with its output and pictures |
+| [Quick start](#quick-start) | The three lines most figures need |
+| [Reference](#1-work-out-the-size) | Each function with a picture of what it does |
 
 ## Why
 
@@ -85,10 +100,9 @@ figfont.figure("fig01.pdf", printed_width=5.15).summary()
 The full script is [`docs/examples/quickstart.py`](docs/examples/quickstart.py). It draws the
 three-panel figure at the top of this page in matplotlib's own style.
 
-**Notebook tour.** [`docs/tour.ipynb`](docs/tour.ipynb) takes that same figure from first draft to
-the page in a Jupyter notebook and calls every function once, in the order you would reach for it.
-Its output is saved, so it reads on GitHub without running anything. The sections below are the
-reference for each function.
+The [notebook tour](docs/tour.ipynb) takes that same figure from first draft to the page and calls
+every function once, in the order you would reach for it. The sections below are the reference for
+each function.
 
 ---
 
