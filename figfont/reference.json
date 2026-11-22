@@ -1,145 +1,2790 @@
 {
- "about": "Printed figure text size in published journal articles (vector text only), from a local library scan on 2026-11-20. Each paper contributes at most 200 text spans.",
+ "about": "Printed size of the text inside figures of 3363 published journal articles from 132 journals, measured with figfont.paper_figures on 2026-11-21. Sizes are in points as printed on the journal page. Each paper is one value, the median of its figure labels. 35 % of papers store their figure text and give exact sizes (method text); the rest have figures saved as images and were read by OCR from up to four figures each (method ocr), with the OCR sizes divided by 1.041, the amount OCR read too large on 2051 figures of known size. median_pt is the median of the paper medians; paper_medians_p25_p75 and paper_medians_p10_p90 are ranges of the paper medians; p10_pt and p90_pt are percentiles of all labels pooled, at most 200 from one paper. small_text uses papers with stored text only. Journals with 10 or more measured papers have their own entry.",
  "all": {
-  "papers": 111,
-  "median_pt": 7.97,
-  "p10_pt": 6.0,
-  "p90_pt": 9.96,
+  "papers": 3363,
+  "median_pt": 6.5,
+  "p10_pt": 4.39,
+  "p90_pt": 9.0,
   "paper_medians_p25_p75": [
-   7.39,
-   8.97
-  ]
+   5.54,
+   7.35
+  ],
+  "paper_medians_p10_p90": [
+   5.03,
+   8.37
+  ],
+  "read_by_ocr": 0.65,
+  "small_text": {
+   "papers": 1169,
+   "typical_smallest_pt": 5.5,
+   "share_with_text_under_6pt": 0.7,
+   "share_with_text_under_5pt": 0.34
+  },
+  "within_a_paper": {
+   "papers": 1169,
+   "small_end_pt": 5.5,
+   "typical_pt": 6.5,
+   "large_end_pt": 7.0
+  },
+  "relative_to_caption": 0.8,
+  "relative_to_body": 0.71,
+  "journals": 132
+ },
+ "methods": {
+  "text": {
+   "papers": 1169,
+   "median_pt": 6.5,
+   "p10_pt": 4.5,
+   "p90_pt": 9.0,
+   "paper_medians_p25_p75": [
+    5.5,
+    7.11
+   ],
+   "paper_medians_p10_p90": [
+    5.5,
+    9.0
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 1169,
+    "typical_smallest_pt": 5.5,
+    "share_with_text_under_6pt": 0.7,
+    "share_with_text_under_5pt": 0.34
+   },
+   "within_a_paper": {
+    "papers": 1169,
+    "small_end_pt": 5.5,
+    "typical_pt": 6.5,
+    "large_end_pt": 7.0
+   },
+   "relative_to_caption": 0.82,
+   "relative_to_body": 0.74
+  },
+  "ocr": {
+   "papers": 2194,
+   "median_pt": 6.51,
+   "p10_pt": 4.19,
+   "p90_pt": 9.26,
+   "paper_medians_p25_p75": [
+    5.66,
+    7.41
+   ],
+   "paper_medians_p10_p90": [
+    4.91,
+    8.21
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.78,
+   "relative_to_body": 0.7
+  }
+ },
+ "fields": {
+  "Climate and Earth": {
+   "papers": 878,
+   "median_pt": 6.28,
+   "p10_pt": 4.29,
+   "p90_pt": 8.82,
+   "paper_medians_p25_p75": [
+    5.5,
+    7.09
+   ],
+   "paper_medians_p10_p90": [
+    4.96,
+    7.92
+   ],
+   "read_by_ocr": 0.83,
+   "small_text": {
+    "papers": 151,
+    "typical_smallest_pt": 5.5,
+    "share_with_text_under_6pt": 0.71,
+    "share_with_text_under_5pt": 0.34
+   },
+   "within_a_paper": {
+    "papers": 151,
+    "small_end_pt": 5.5,
+    "typical_pt": 6.5,
+    "large_end_pt": 7.0
+   },
+   "relative_to_caption": 0.76,
+   "relative_to_body": 0.67,
+   "journals": 44
+  },
+  "Energy and environment": {
+   "papers": 524,
+   "median_pt": 6.5,
+   "p10_pt": 4.51,
+   "p90_pt": 8.96,
+   "paper_medians_p25_p75": [
+    5.5,
+    7.25
+   ],
+   "paper_medians_p10_p90": [
+    5.4,
+    8.41
+   ],
+   "read_by_ocr": 0.5,
+   "small_text": {
+    "papers": 261,
+    "typical_smallest_pt": 5.5,
+    "share_with_text_under_6pt": 0.77,
+    "share_with_text_under_5pt": 0.31
+   },
+   "within_a_paper": {
+    "papers": 261,
+    "small_end_pt": 5.5,
+    "typical_pt": 6.5,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.81,
+   "relative_to_body": 0.73,
+   "journals": 30
+  },
+  "General science": {
+   "papers": 440,
+   "median_pt": 6.69,
+   "p10_pt": 4.41,
+   "p90_pt": 9.0,
+   "paper_medians_p25_p75": [
+    5.72,
+    7.54
+   ],
+   "paper_medians_p10_p90": [
+    5.0,
+    8.36
+   ],
+   "read_by_ocr": 0.63,
+   "small_text": {
+    "papers": 164,
+    "typical_smallest_pt": 5.49,
+    "share_with_text_under_6pt": 0.61,
+    "share_with_text_under_5pt": 0.29
+   },
+   "within_a_paper": {
+    "papers": 164,
+    "small_end_pt": 5.49,
+    "typical_pt": 6.94,
+    "large_end_pt": 8.11
+   },
+   "relative_to_caption": 0.87,
+   "relative_to_body": 0.75,
+   "journals": 11
+  },
+  "Life science and medicine": {
+   "papers": 824,
+   "median_pt": 6.48,
+   "p10_pt": 4.13,
+   "p90_pt": 9.15,
+   "paper_medians_p25_p75": [
+    5.5,
+    7.52
+   ],
+   "paper_medians_p10_p90": [
+    4.79,
+    8.74
+   ],
+   "read_by_ocr": 0.6,
+   "small_text": {
+    "papers": 328,
+    "typical_smallest_pt": 5.5,
+    "share_with_text_under_6pt": 0.73,
+    "share_with_text_under_5pt": 0.37
+   },
+   "within_a_paper": {
+    "papers": 328,
+    "small_end_pt": 5.5,
+    "typical_pt": 6.48,
+    "large_end_pt": 6.62
+   },
+   "relative_to_caption": 0.81,
+   "relative_to_body": 0.71,
+   "journals": 26
+  },
+  "Physics, chemistry and materials": {
+   "papers": 695,
+   "median_pt": 6.76,
+   "p10_pt": 4.5,
+   "p90_pt": 9.2,
+   "paper_medians_p25_p75": [
+    6.01,
+    7.49
+   ],
+   "paper_medians_p10_p90": [
+    5.41,
+    8.87
+   ],
+   "read_by_ocr": 0.62,
+   "small_text": {
+    "papers": 265,
+    "typical_smallest_pt": 5.36,
+    "share_with_text_under_6pt": 0.65,
+    "share_with_text_under_5pt": 0.35
+   },
+   "within_a_paper": {
+    "papers": 265,
+    "small_end_pt": 5.36,
+    "typical_pt": 6.81,
+    "large_end_pt": 8.0
+   },
+   "relative_to_caption": 0.8,
+   "relative_to_body": 0.71,
+   "journals": 19
+  }
  },
  "journals": {
-  "Nature Communications": {
-   "papers": 10,
-   "median_pt": 7.97,
-   "p10_pt": 6.23,
-   "p90_pt": 8.77,
+  "ACS Energy Letters": {
+   "papers": 40,
+   "median_pt": 7.18,
+   "p10_pt": 4.99,
+   "p90_pt": 9.96,
    "paper_medians_p25_p75": [
-    7.97,
-    7.97
-   ]
+    6.57,
+    7.78
+   ],
+   "paper_medians_p10_p90": [
+    6.11,
+    8.52
+   ],
+   "read_by_ocr": 0.95,
+   "relative_to_caption": 0.8,
+   "relative_to_body": 0.72,
+   "field": "Energy and environment"
+  },
+  "ACS Nano": {
+   "papers": 40,
+   "median_pt": 6.85,
+   "p10_pt": 5.09,
+   "p90_pt": 9.38,
+   "paper_medians_p25_p75": [
+    6.48,
+    7.2
+   ],
+   "paper_medians_p10_p90": [
+    6.33,
+    8.02
+   ],
+   "read_by_ocr": 0.95,
+   "relative_to_caption": 0.76,
+   "relative_to_body": 0.69,
+   "field": "Physics, chemistry and materials"
+  },
+  "ACS Omega": {
+   "papers": 39,
+   "median_pt": 6.54,
+   "p10_pt": 4.27,
+   "p90_pt": 9.05,
+   "paper_medians_p25_p75": [
+    5.75,
+    7.08
+   ],
+   "paper_medians_p10_p90": [
+    4.98,
+    7.51
+   ],
+   "read_by_ocr": 0.97,
+   "relative_to_caption": 0.73,
+   "relative_to_body": 0.65,
+   "field": "Physics, chemistry and materials"
+  },
+  "Advanced Materials": {
+   "papers": 40,
+   "median_pt": 6.91,
+   "p10_pt": 4.6,
+   "p90_pt": 9.62,
+   "paper_medians_p25_p75": [
+    6.35,
+    7.41
+   ],
+   "paper_medians_p10_p90": [
+    5.54,
+    8.0
+   ],
+   "read_by_ocr": 0.97,
+   "relative_to_caption": 0.86,
+   "relative_to_body": 0.77,
+   "field": "Physics, chemistry and materials"
+  },
+  "Advanced Science": {
+   "papers": 39,
+   "median_pt": 6.5,
+   "p10_pt": 4.15,
+   "p90_pt": 9.29,
+   "paper_medians_p25_p75": [
+    5.56,
+    7.15
+   ],
+   "paper_medians_p10_p90": [
+    5.13,
+    8.04
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.81,
+   "relative_to_body": 0.74,
+   "field": "Physics, chemistry and materials"
+  },
+  "Angewandte Chemie": {
+   "papers": 40,
+   "median_pt": 6.83,
+   "p10_pt": 4.87,
+   "p90_pt": 9.25,
+   "paper_medians_p25_p75": [
+    6.23,
+    7.47
+   ],
+   "paper_medians_p10_p90": [
+    5.57,
+    8.02
+   ],
+   "read_by_ocr": 0.88,
+   "small_text": {
+    "papers": 5,
+    "typical_smallest_pt": 5.39,
+    "share_with_text_under_6pt": 0.6,
+    "share_with_text_under_5pt": 0.2
+   },
+   "within_a_paper": {
+    "papers": 5,
+    "small_end_pt": 5.39,
+    "typical_pt": 7.25,
+    "large_end_pt": 8.0
+   },
+   "relative_to_caption": 0.85,
+   "relative_to_body": 0.76,
+   "field": "Physics, chemistry and materials"
+  },
+  "Atmospheric Chemistry and Physics": {
+   "papers": 42,
+   "median_pt": 6.28,
+   "p10_pt": 4.28,
+   "p90_pt": 8.96,
+   "paper_medians_p25_p75": [
+    5.51,
+    7.02
+   ],
+   "paper_medians_p10_p90": [
+    4.81,
+    7.74
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.7,
+   "relative_to_body": 0.63,
+   "field": "Climate and Earth"
+  },
+  "BMC Biology": {
+   "papers": 37,
+   "median_pt": 6.71,
+   "p10_pt": 4.28,
+   "p90_pt": 9.7,
+   "paper_medians_p25_p75": [
+    5.85,
+    7.52
+   ],
+   "paper_medians_p10_p90": [
+    5.27,
+    8.59
+   ],
+   "read_by_ocr": 0.92,
+   "relative_to_caption": 0.84,
+   "relative_to_body": 0.68,
+   "field": "Life science and medicine"
+  },
+  "BMJ Open": {
+   "papers": 31,
+   "median_pt": 7.57,
+   "p10_pt": 4.85,
+   "p90_pt": 10.29,
+   "paper_medians_p25_p75": [
+    6.26,
+    8.61
+   ],
+   "paper_medians_p10_p90": [
+    5.13,
+    9.22
+   ],
+   "read_by_ocr": 0.97,
+   "relative_to_caption": 0.84,
+   "relative_to_body": 0.76,
+   "field": "Life science and medicine"
+  },
+  "Biogeosciences": {
+   "papers": 40,
+   "median_pt": 6.13,
+   "p10_pt": 4.16,
+   "p90_pt": 8.55,
+   "paper_medians_p25_p75": [
+    5.46,
+    6.82
+   ],
+   "paper_medians_p10_p90": [
+    5.23,
+    6.98
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.68,
+   "relative_to_body": 0.63,
+   "field": "Climate and Earth"
+  },
+  "Bioinformatics": {
+   "papers": 39,
+   "median_pt": 5.8,
+   "p10_pt": 3.56,
+   "p90_pt": 8.47,
+   "paper_medians_p25_p75": [
+    4.61,
+    6.71
+   ],
+   "paper_medians_p10_p90": [
+    4.12,
+    7.46
+   ],
+   "read_by_ocr": 0.9,
+   "relative_to_caption": 0.78,
+   "relative_to_body": 0.63,
+   "field": "Life science and medicine"
+  },
+  "Building and Environment": {
+   "papers": 40,
+   "median_pt": 6.6,
+   "p10_pt": 4.03,
+   "p90_pt": 9.26,
+   "paper_medians_p25_p75": [
+    5.31,
+    7.46
+   ],
+   "paper_medians_p10_p90": [
+    5.04,
+    8.25
+   ],
+   "read_by_ocr": 0.97,
+   "relative_to_caption": 0.93,
+   "relative_to_body": 0.81,
+   "field": "Energy and environment"
+  },
+  "Cell Reports": {
+   "papers": 24,
+   "median_pt": 6.4,
+   "p10_pt": 4.12,
+   "p90_pt": 8.78,
+   "paper_medians_p25_p75": [
+    5.45,
+    6.99
+   ],
+   "paper_medians_p10_p90": [
+    5.07,
+    7.63
+   ],
+   "read_by_ocr": 0.92,
+   "relative_to_caption": 0.85,
+   "relative_to_body": 0.75,
+   "field": "Life science and medicine"
+  },
+  "Chemical Science": {
+   "papers": 40,
+   "median_pt": 6.44,
+   "p10_pt": 4.44,
+   "p90_pt": 9.64,
+   "paper_medians_p25_p75": [
+    5.92,
+    7.62
+   ],
+   "paper_medians_p10_p90": [
+    5.34,
+    9.15
+   ],
+   "read_by_ocr": 0.88,
+   "small_text": {
+    "papers": 5,
+    "typical_smallest_pt": 7.22,
+    "share_with_text_under_6pt": 0.0,
+    "share_with_text_under_5pt": 0.0
+   },
+   "within_a_paper": {
+    "papers": 5,
+    "small_end_pt": 7.22,
+    "typical_pt": 9.96,
+    "large_end_pt": 15.94
+   },
+   "relative_to_body": 0.72,
+   "field": "Physics, chemistry and materials"
+  },
+  "Climate Dynamics": {
+   "papers": 44,
+   "median_pt": 6.87,
+   "p10_pt": 4.18,
+   "p90_pt": 9.61,
+   "paper_medians_p25_p75": [
+    5.85,
+    7.72
+   ],
+   "paper_medians_p10_p90": [
+    4.76,
+    8.39
+   ],
+   "read_by_ocr": 0.8,
+   "small_text": {
+    "papers": 9,
+    "typical_smallest_pt": 5.93,
+    "share_with_text_under_6pt": 0.56,
+    "share_with_text_under_5pt": 0.11
+   },
+   "within_a_paper": {
+    "papers": 9,
+    "small_end_pt": 5.93,
+    "typical_pt": 7.35,
+    "large_end_pt": 9.71
+   },
+   "relative_to_caption": 0.81,
+   "relative_to_body": 0.7,
+   "field": "Climate and Earth"
+  },
+  "Climate of the Past": {
+   "papers": 40,
+   "median_pt": 6.3,
+   "p10_pt": 4.48,
+   "p90_pt": 8.91,
+   "paper_medians_p25_p75": [
+    5.71,
+    7.12
+   ],
+   "paper_medians_p10_p90": [
+    5.09,
+    7.66
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.7,
+   "relative_to_body": 0.63,
+   "field": "Climate and Earth"
+  },
+  "Climatic Change": {
+   "papers": 28,
+   "median_pt": 5.46,
+   "p10_pt": 3.42,
+   "p90_pt": 8.12,
+   "paper_medians_p25_p75": [
+    4.78,
+    6.59
+   ],
+   "paper_medians_p10_p90": [
+    4.38,
+    7.81
+   ],
+   "read_by_ocr": 0.82,
+   "small_text": {
+    "papers": 5,
+    "typical_smallest_pt": 4.39,
+    "share_with_text_under_6pt": 0.8,
+    "share_with_text_under_5pt": 0.6
+   },
+   "within_a_paper": {
+    "papers": 5,
+    "small_end_pt": 4.39,
+    "typical_pt": 5.25,
+    "large_end_pt": 7.53
+   },
+   "relative_to_caption": 0.68,
+   "relative_to_body": 0.58,
+   "field": "Climate and Earth"
+  },
+  "Communications Biology": {
+   "papers": 38,
+   "median_pt": 6.54,
+   "p10_pt": 4.05,
+   "p90_pt": 9.41,
+   "paper_medians_p25_p75": [
+    5.72,
+    7.47
+   ],
+   "paper_medians_p10_p90": [
+    4.97,
+    8.1
+   ],
+   "read_by_ocr": 0.74,
+   "small_text": {
+    "papers": 10,
+    "typical_smallest_pt": 5.52,
+    "share_with_text_under_6pt": 0.7,
+    "share_with_text_under_5pt": 0.4
+   },
+   "within_a_paper": {
+    "papers": 10,
+    "small_end_pt": 5.52,
+    "typical_pt": 6.53,
+    "large_end_pt": 7.74
+   },
+   "relative_to_caption": 0.82,
+   "relative_to_body": 0.7,
+   "field": "Life science and medicine"
+  },
+  "Communications Chemistry": {
+   "papers": 37,
+   "median_pt": 6.92,
+   "p10_pt": 4.52,
+   "p90_pt": 9.9,
+   "paper_medians_p25_p75": [
+    6.16,
+    7.41
+   ],
+   "paper_medians_p10_p90": [
+    5.35,
+    7.91
+   ],
+   "read_by_ocr": 0.73,
+   "small_text": {
+    "papers": 10,
+    "typical_smallest_pt": 5.46,
+    "share_with_text_under_6pt": 0.7,
+    "share_with_text_under_5pt": 0.3
+   },
+   "within_a_paper": {
+    "papers": 10,
+    "small_end_pt": 5.46,
+    "typical_pt": 7.19,
+    "large_end_pt": 7.88
+   },
+   "relative_to_caption": 0.86,
+   "relative_to_body": 0.73,
+   "field": "Physics, chemistry and materials"
+  },
+  "Communications Earth & Environment": {
+   "papers": 41,
+   "median_pt": 6.81,
+   "p10_pt": 4.37,
+   "p90_pt": 9.05,
+   "paper_medians_p25_p75": [
+    5.75,
+    7.16
+   ],
+   "paper_medians_p10_p90": [
+    5.12,
+    8.05
+   ],
+   "read_by_ocr": 0.78,
+   "small_text": {
+    "papers": 9,
+    "typical_smallest_pt": 5.27,
+    "share_with_text_under_6pt": 0.67,
+    "share_with_text_under_5pt": 0.22
+   },
+   "within_a_paper": {
+    "papers": 9,
+    "small_end_pt": 5.27,
+    "typical_pt": 7.04,
+    "large_end_pt": 8.34
+   },
+   "relative_to_caption": 0.86,
+   "relative_to_body": 0.74,
+   "field": "Climate and Earth"
+  },
+  "Communications Physics": {
+   "papers": 39,
+   "median_pt": 7.14,
+   "p10_pt": 5.17,
+   "p90_pt": 9.71,
+   "paper_medians_p25_p75": [
+    6.48,
+    8.04
+   ],
+   "paper_medians_p10_p90": [
+    6.03,
+    8.81
+   ],
+   "read_by_ocr": 0.54,
+   "small_text": {
+    "papers": 18,
+    "typical_smallest_pt": 5.62,
+    "share_with_text_under_6pt": 0.67,
+    "share_with_text_under_5pt": 0.0
+   },
+   "within_a_paper": {
+    "papers": 18,
+    "small_end_pt": 5.62,
+    "typical_pt": 7.1,
+    "large_end_pt": 8.97
+   },
+   "relative_to_caption": 0.91,
+   "relative_to_body": 0.78,
+   "field": "Physics, chemistry and materials"
+  },
+  "Earth System Dynamics": {
+   "papers": 40,
+   "median_pt": 6.11,
+   "p10_pt": 4.02,
+   "p90_pt": 8.14,
+   "paper_medians_p25_p75": [
+    5.18,
+    6.5
+   ],
+   "paper_medians_p10_p90": [
+    4.31,
+    7.31
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.68,
+   "relative_to_body": 0.61,
+   "field": "Climate and Earth"
+  },
+  "Earth System Science Data": {
+   "papers": 38,
+   "median_pt": 6.24,
+   "p10_pt": 4.15,
+   "p90_pt": 8.57,
+   "paper_medians_p25_p75": [
+    5.57,
+    6.92
+   ],
+   "paper_medians_p10_p90": [
+    5.1,
+    7.28
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.69,
+   "relative_to_body": 0.62,
+   "field": "Climate and Earth"
+  },
+  "Earth's Future": {
+   "papers": 25,
+   "median_pt": 7.19,
+   "p10_pt": 4.34,
+   "p90_pt": 9.36,
+   "paper_medians_p25_p75": [
+    6.43,
+    7.96
+   ],
+   "paper_medians_p10_p90": [
+    5.54,
+    8.48
+   ],
+   "read_by_ocr": 0.76,
+   "small_text": {
+    "papers": 6,
+    "typical_smallest_pt": 6.9,
+    "share_with_text_under_6pt": 0.33,
+    "share_with_text_under_5pt": 0.0
+   },
+   "within_a_paper": {
+    "papers": 6,
+    "small_end_pt": 6.9,
+    "typical_pt": 7.42,
+    "large_end_pt": 8.16
+   },
+   "relative_to_caption": 0.9,
+   "relative_to_body": 0.8,
+   "field": "Climate and Earth"
+  },
+  "Ecology Letters": {
+   "papers": 12,
+   "median_pt": 7.13,
+   "p10_pt": 4.65,
+   "p90_pt": 9.06,
+   "paper_medians_p25_p75": [
+    6.36,
+    8.06
+   ],
+   "paper_medians_p10_p90": [
+    5.43,
+    8.92
+   ],
+   "read_by_ocr": 0.17,
+   "small_text": {
+    "papers": 10,
+    "typical_smallest_pt": 6.34,
+    "share_with_text_under_6pt": 0.3,
+    "share_with_text_under_5pt": 0.2
+   },
+   "within_a_paper": {
+    "papers": 10,
+    "small_end_pt": 6.34,
+    "typical_pt": 7.16,
+    "large_end_pt": 8.61
+   },
+   "relative_to_caption": 0.89,
+   "relative_to_body": 0.73,
+   "field": "Life science and medicine"
+  },
+  "Ecology and Evolution": {
+   "papers": 13,
+   "median_pt": 5.82,
+   "p10_pt": 4.27,
+   "p90_pt": 10.17,
+   "paper_medians_p25_p75": [
+    5.53,
+    7.59
+   ],
+   "paper_medians_p10_p90": [
+    5.03,
+    8.81
+   ],
+   "read_by_ocr": 0.85,
+   "relative_to_caption": 0.72,
+   "relative_to_body": 0.71,
+   "field": "Life science and medicine"
+  },
+  "Energy and Buildings": {
+   "papers": 23,
+   "median_pt": 7.97,
+   "p10_pt": 5.41,
+   "p90_pt": 10.63,
+   "paper_medians_p25_p75": [
+    6.87,
+    8.57
+   ],
+   "paper_medians_p10_p90": [
+    5.89,
+    9.27
+   ],
+   "read_by_ocr": 0.78,
+   "small_text": {
+    "papers": 5,
+    "typical_smallest_pt": 8.01,
+    "share_with_text_under_6pt": 0.4,
+    "share_with_text_under_5pt": 0.4
+   },
+   "within_a_paper": {
+    "papers": 5,
+    "small_end_pt": 8.01,
+    "typical_pt": 9.0,
+    "large_end_pt": 11.04
+   },
+   "relative_to_caption": 1.08,
+   "relative_to_body": 0.99,
+   "field": "Energy and environment"
+  },
+  "Entropy": {
+   "papers": 36,
+   "median_pt": 6.36,
+   "p10_pt": 2.93,
+   "p90_pt": 9.51,
+   "paper_medians_p25_p75": [
+    4.95,
+    7.83
+   ],
+   "paper_medians_p10_p90": [
+    3.94,
+    8.8
+   ],
+   "read_by_ocr": 0.47,
+   "small_text": {
+    "papers": 19,
+    "typical_smallest_pt": 5.0,
+    "share_with_text_under_6pt": 0.68,
+    "share_with_text_under_5pt": 0.53
+   },
+   "within_a_paper": {
+    "papers": 19,
+    "small_end_pt": 5.0,
+    "typical_pt": 6.58,
+    "large_end_pt": 9.0
+   },
+   "relative_to_caption": 0.71,
+   "relative_to_body": 0.64,
+   "field": "Physics, chemistry and materials"
+  },
+  "Environment International": {
+   "papers": 28,
+   "median_pt": 7.2,
+   "p10_pt": 4.39,
+   "p90_pt": 9.63,
+   "paper_medians_p25_p75": [
+    5.74,
+    8.1
+   ],
+   "paper_medians_p10_p90": [
+    5.12,
+    8.91
+   ],
+   "read_by_ocr": 0.96,
+   "relative_to_caption": 1.0,
+   "relative_to_body": 0.9,
+   "field": "Energy and environment"
+  },
+  "Environmental Health Perspectives": {
+   "papers": 24,
+   "median_pt": 6.68,
+   "p10_pt": 4.76,
+   "p90_pt": 8.98,
+   "paper_medians_p25_p75": [
+    6.07,
+    7.81
+   ],
+   "paper_medians_p10_p90": [
+    5.33,
+    8.18
+   ],
+   "read_by_ocr": 0.75,
+   "small_text": {
+    "papers": 6,
+    "typical_smallest_pt": 5.83,
+    "share_with_text_under_6pt": 0.5,
+    "share_with_text_under_5pt": 0.33
+   },
+   "within_a_paper": {
+    "papers": 6,
+    "small_end_pt": 5.83,
+    "typical_pt": 6.71,
+    "large_end_pt": 8.59
+   },
+   "relative_to_caption": 0.83,
+   "relative_to_body": 0.7,
+   "field": "Life science and medicine"
+  },
+  "Environmental Science & Technology": {
+   "papers": 39,
+   "median_pt": 6.92,
+   "p10_pt": 4.79,
+   "p90_pt": 9.25,
+   "paper_medians_p25_p75": [
+    6.41,
+    7.46
+   ],
+   "paper_medians_p10_p90": [
+    5.7,
+    8.33
+   ],
+   "read_by_ocr": 0.95,
+   "relative_to_caption": 0.77,
+   "relative_to_body": 0.69,
+   "field": "Energy and environment"
+  },
+  "Frontiers in Microbiology": {
+   "papers": 19,
+   "median_pt": 6.17,
+   "p10_pt": 3.34,
+   "p90_pt": 8.62,
+   "paper_medians_p25_p75": [
+    4.55,
+    7.66
+   ],
+   "paper_medians_p10_p90": [
+    3.81,
+    8.69
+   ],
+   "read_by_ocr": 0.84,
+   "relative_to_body": 0.69,
+   "field": "Life science and medicine"
+  },
+  "Frontiers in Plant Science": {
+   "papers": 38,
+   "median_pt": 5.8,
+   "p10_pt": 3.29,
+   "p90_pt": 9.04,
+   "paper_medians_p25_p75": [
+    4.65,
+    7.0
+   ],
+   "paper_medians_p10_p90": [
+    4.08,
+    8.09
+   ],
+   "read_by_ocr": 0.79,
+   "small_text": {
+    "papers": 8,
+    "typical_smallest_pt": 7.0,
+    "share_with_text_under_6pt": 0.12,
+    "share_with_text_under_5pt": 0.0
+   },
+   "within_a_paper": {
+    "papers": 8,
+    "small_end_pt": 7.0,
+    "typical_pt": 7.0,
+    "large_end_pt": 7.0
+   },
+   "relative_to_body": 0.64,
+   "field": "Life science and medicine"
+  },
+  "Frontiers in Psychology": {
+   "papers": 28,
+   "median_pt": 7.0,
+   "p10_pt": 4.91,
+   "p90_pt": 9.42,
+   "paper_medians_p25_p75": [
+    6.28,
+    8.4
+   ],
+   "paper_medians_p10_p90": [
+    5.9,
+    9.2
+   ],
+   "read_by_ocr": 0.79,
+   "small_text": {
+    "papers": 6,
+    "typical_smallest_pt": 6.9,
+    "share_with_text_under_6pt": 0.17,
+    "share_with_text_under_5pt": 0.17
+   },
+   "within_a_paper": {
+    "papers": 6,
+    "small_end_pt": 6.9,
+    "typical_pt": 7.0,
+    "large_end_pt": 8.0
+   },
+   "relative_to_body": 0.78,
+   "field": "Life science and medicine"
+  },
+  "Genome Biology": {
+   "papers": 36,
+   "median_pt": 4.81,
+   "p10_pt": 3.04,
+   "p90_pt": 6.82,
+   "paper_medians_p25_p75": [
+    4.1,
+    5.58
+   ],
+   "paper_medians_p10_p90": [
+    3.49,
+    5.78
+   ],
+   "read_by_ocr": 0.94,
+   "relative_to_caption": 0.6,
+   "relative_to_body": 0.49,
+   "field": "Life science and medicine"
+  },
+  "GeoHealth": {
+   "papers": 36,
+   "median_pt": 6.68,
+   "p10_pt": 4.16,
+   "p90_pt": 9.23,
+   "paper_medians_p25_p75": [
+    5.85,
+    7.38
+   ],
+   "paper_medians_p10_p90": [
+    5.16,
+    8.17
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.83,
+   "relative_to_body": 0.74,
+   "field": "Energy and environment"
+  },
+  "Geophysical Research Letters": {
+   "papers": 47,
+   "median_pt": 7.08,
+   "p10_pt": 4.53,
+   "p90_pt": 9.64,
+   "paper_medians_p25_p75": [
+    6.25,
+    7.81
+   ],
+   "paper_medians_p10_p90": [
+    5.59,
+    8.39
+   ],
+   "read_by_ocr": 0.87,
+   "small_text": {
+    "papers": 6,
+    "typical_smallest_pt": 7.3,
+    "share_with_text_under_6pt": 0.33,
+    "share_with_text_under_5pt": 0.17
+   },
+   "within_a_paper": {
+    "papers": 6,
+    "small_end_pt": 7.3,
+    "typical_pt": 8.82,
+    "large_end_pt": 10.1
+   },
+   "relative_to_caption": 0.89,
+   "relative_to_body": 0.8,
+   "field": "Climate and Earth"
+  },
+  "Geoscientific Model Development": {
+   "papers": 41,
+   "median_pt": 6.07,
+   "p10_pt": 4.21,
+   "p90_pt": 8.32,
+   "paper_medians_p25_p75": [
+    5.53,
+    6.57
+   ],
+   "paper_medians_p10_p90": [
+    5.08,
+    7.31
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.67,
+   "relative_to_body": 0.61,
+   "field": "Climate and Earth"
+  },
+  "Global Change Biology": {
+   "papers": 11,
+   "median_pt": 7.48,
+   "p10_pt": 5.51,
+   "p90_pt": 9.58,
+   "paper_medians_p25_p75": [
+    6.49,
+    8.04
+   ],
+   "paper_medians_p10_p90": [
+    6.05,
+    8.37
+   ],
+   "read_by_ocr": 0.55,
+   "small_text": {
+    "papers": 5,
+    "typical_smallest_pt": 6.69,
+    "share_with_text_under_6pt": 0.4,
+    "share_with_text_under_5pt": 0.2
+   },
+   "within_a_paper": {
+    "papers": 5,
+    "small_end_pt": 6.69,
+    "typical_pt": 8.0,
+    "large_end_pt": 9.1
+   },
+   "relative_to_caption": 0.92,
+   "relative_to_body": 0.83,
+   "field": "Climate and Earth"
+  },
+  "Heliyon": {
+   "papers": 36,
+   "median_pt": 6.11,
+   "p10_pt": 3.95,
+   "p90_pt": 8.3,
+   "paper_medians_p25_p75": [
+    5.42,
+    6.88
+   ],
+   "paper_medians_p10_p90": [
+    5.02,
+    7.5
+   ],
+   "read_by_ocr": 0.97,
+   "relative_to_caption": 0.81,
+   "relative_to_body": 0.76,
+   "field": "General science"
+  },
+  "Hydrology and Earth System Sciences": {
+   "papers": 41,
+   "median_pt": 6.12,
+   "p10_pt": 4.2,
+   "p90_pt": 8.4,
+   "paper_medians_p25_p75": [
+    5.56,
+    6.88
+   ],
+   "paper_medians_p10_p90": [
+    4.82,
+    7.41
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.68,
+   "relative_to_body": 0.61,
+   "field": "Climate and Earth"
+  },
+  "International Journal of Environmental Research and Public Health": {
+   "papers": 23,
+   "median_pt": 7.52,
+   "p10_pt": 4.42,
+   "p90_pt": 9.98,
+   "paper_medians_p25_p75": [
+    6.58,
+    9.0
+   ],
+   "paper_medians_p10_p90": [
+    5.66,
+    10.1
+   ],
+   "read_by_ocr": 0.65,
+   "small_text": {
+    "papers": 8,
+    "typical_smallest_pt": 7.73,
+    "share_with_text_under_6pt": 0.12,
+    "share_with_text_under_5pt": 0.12
+   },
+   "within_a_paper": {
+    "papers": 8,
+    "small_end_pt": 7.73,
+    "typical_pt": 8.51,
+    "large_end_pt": 9.97
+   },
+   "relative_to_caption": 0.84,
+   "relative_to_body": 0.76,
+   "field": "Energy and environment"
+  },
+  "Journal of Advances in Modeling Earth Systems": {
+   "papers": 35,
+   "median_pt": 6.68,
+   "p10_pt": 4.68,
+   "p90_pt": 9.61,
+   "paper_medians_p25_p75": [
+    6.17,
+    7.43
+   ],
+   "paper_medians_p10_p90": [
+    5.67,
+    8.05
+   ],
+   "read_by_ocr": 0.8,
+   "small_text": {
+    "papers": 7,
+    "typical_smallest_pt": 6.63,
+    "share_with_text_under_6pt": 0.14,
+    "share_with_text_under_5pt": 0.14
+   },
+   "within_a_paper": {
+    "papers": 7,
+    "small_end_pt": 6.63,
+    "typical_pt": 7.12,
+    "large_end_pt": 8.79
+   },
+   "relative_to_caption": 0.83,
+   "relative_to_body": 0.74,
+   "field": "Climate and Earth"
+  },
+  "Journal of Geophysical Research: Atmospheres": {
+   "papers": 40,
+   "median_pt": 7.12,
+   "p10_pt": 4.85,
+   "p90_pt": 10.07,
+   "paper_medians_p25_p75": [
+    6.24,
+    7.94
+   ],
+   "paper_medians_p10_p90": [
+    5.75,
+    8.39
+   ],
+   "read_by_ocr": 0.95,
+   "relative_to_caption": 0.89,
+   "relative_to_body": 0.79,
+   "field": "Climate and Earth"
+  },
+  "Journal of the American Chemical Society": {
+   "papers": 40,
+   "median_pt": 7.12,
+   "p10_pt": 4.99,
+   "p90_pt": 9.77,
+   "paper_medians_p25_p75": [
+    6.41,
+    7.5
+   ],
+   "paper_medians_p10_p90": [
+    6.35,
+    8.36
+   ],
+   "read_by_ocr": 0.95,
+   "relative_to_caption": 0.79,
+   "relative_to_body": 0.71,
+   "field": "Physics, chemistry and materials"
+  },
+  "Journal of the Royal Society Interface": {
+   "papers": 37,
+   "median_pt": 8.38,
+   "p10_pt": 6.0,
+   "p90_pt": 9.0,
+   "paper_medians_p25_p75": [
+    7.22,
+    9.0
+   ],
+   "paper_medians_p10_p90": [
+    6.47,
+    9.0
+   ],
+   "read_by_ocr": 0.22,
+   "small_text": {
+    "papers": 29,
+    "typical_smallest_pt": 6.99,
+    "share_with_text_under_6pt": 0.17,
+    "share_with_text_under_5pt": 0.03
+   },
+   "within_a_paper": {
+    "papers": 29,
+    "small_end_pt": 6.99,
+    "typical_pt": 9.0,
+    "large_end_pt": 9.0
+   },
+   "relative_to_caption": 0.84,
+   "relative_to_body": 0.93,
+   "field": "Physics, chemistry and materials"
+  },
+  "Light: Science & Applications": {
+   "papers": 38,
+   "median_pt": 7.0,
+   "p10_pt": 4.08,
+   "p90_pt": 7.0,
+   "paper_medians_p25_p75": [
+    6.0,
+    7.0
+   ],
+   "paper_medians_p10_p90": [
+    5.54,
+    7.0
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 38,
+    "typical_smallest_pt": 5.0,
+    "share_with_text_under_6pt": 0.87,
+    "share_with_text_under_5pt": 0.39
+   },
+   "within_a_paper": {
+    "papers": 38,
+    "small_end_pt": 5.0,
+    "typical_pt": 7.0,
+    "large_end_pt": 7.0
+   },
+   "relative_to_caption": 0.88,
+   "relative_to_body": 0.71,
+   "field": "Physics, chemistry and materials"
+  },
+  "Materials": {
+   "papers": 39,
+   "median_pt": 7.44,
+   "p10_pt": 4.22,
+   "p90_pt": 10.68,
+   "paper_medians_p25_p75": [
+    5.87,
+    9.02
+   ],
+   "paper_medians_p10_p90": [
+    4.85,
+    10.36
+   ],
+   "read_by_ocr": 0.51,
+   "small_text": {
+    "papers": 19,
+    "typical_smallest_pt": 7.64,
+    "share_with_text_under_6pt": 0.32,
+    "share_with_text_under_5pt": 0.05
+   },
+   "within_a_paper": {
+    "papers": 19,
+    "small_end_pt": 7.64,
+    "typical_pt": 9.0,
+    "large_end_pt": 10.02
+   },
+   "relative_to_caption": 0.83,
+   "relative_to_body": 0.74,
+   "field": "Physics, chemistry and materials"
+  },
+  "Molecules": {
+   "papers": 36,
+   "median_pt": 6.49,
+   "p10_pt": 4.15,
+   "p90_pt": 9.66,
+   "paper_medians_p25_p75": [
+    5.72,
+    7.87
+   ],
+   "paper_medians_p10_p90": [
+    5.23,
+    9.17
+   ],
+   "read_by_ocr": 0.78,
+   "small_text": {
+    "papers": 8,
+    "typical_smallest_pt": 7.56,
+    "share_with_text_under_6pt": 0.25,
+    "share_with_text_under_5pt": 0.25
+   },
+   "within_a_paper": {
+    "papers": 8,
+    "small_end_pt": 7.56,
+    "typical_pt": 8.46,
+    "large_end_pt": 9.81
+   },
+   "relative_to_caption": 0.74,
+   "relative_to_body": 0.65,
+   "field": "Physics, chemistry and materials"
+  },
+  "Nano Letters": {
+   "papers": 40,
+   "median_pt": 6.84,
+   "p10_pt": 4.95,
+   "p90_pt": 9.53,
+   "paper_medians_p25_p75": [
+    6.41,
+    7.43
+   ],
+   "paper_medians_p10_p90": [
+    5.64,
+    8.0
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.76,
+   "relative_to_body": 0.68,
+   "field": "Physics, chemistry and materials"
+  },
+  "Natural Hazards and Earth System Sciences": {
+   "papers": 39,
+   "median_pt": 6.14,
+   "p10_pt": 4.25,
+   "p90_pt": 8.18,
+   "paper_medians_p25_p75": [
+    5.59,
+    6.58
+   ],
+   "paper_medians_p10_p90": [
+    4.76,
+    7.0
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.68,
+   "relative_to_body": 0.61,
+   "field": "Climate and Earth"
   },
   "Nature": {
-   "papers": 7,
-   "median_pt": 7.0,
-   "p10_pt": 5.5,
+   "papers": 46,
+   "median_pt": 6.0,
+   "p10_pt": 5.0,
    "p90_pt": 8.0,
    "paper_medians_p25_p75": [
     6.0,
     7.0
-   ]
+   ],
+   "paper_medians_p10_p90": [
+    5.0,
+    7.0
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 46,
+    "typical_smallest_pt": 5.31,
+    "share_with_text_under_6pt": 0.61,
+    "share_with_text_under_5pt": 0.28
+   },
+   "within_a_paper": {
+    "papers": 46,
+    "small_end_pt": 5.31,
+    "typical_pt": 6.0,
+    "large_end_pt": 8.0
+   },
+   "relative_to_caption": 0.86,
+   "relative_to_body": 0.73,
+   "field": "General science"
   },
-  "Journal of Climate": {
-   "papers": 5,
-   "median_pt": 8.47,
-   "p10_pt": 7.97,
-   "p90_pt": 9.46,
+  "Nature Cities": {
+   "papers": 33,
+   "median_pt": 5.5,
+   "p10_pt": 4.5,
+   "p90_pt": 6.5,
    "paper_medians_p25_p75": [
-    7.97,
-    8.47
-   ]
-  },
-  "Communications Earth & Environment": {
-   "papers": 5,
-   "median_pt": 7.97,
-   "p10_pt": 7.97,
-   "p90_pt": 9.46,
-   "paper_medians_p25_p75": [
-    7.97,
-    9.46
-   ]
-  },
-  "Energy and Buildings": {
-   "papers": 4,
-   "median_pt": 6.46,
-   "p10_pt": 5.45,
-   "p90_pt": 8.38,
-   "paper_medians_p25_p75": [
-    6.35,
-    7.97
-   ]
-  },
-  "npj Climate and Atmospheric Science": {
-   "papers": 4,
-   "median_pt": 7.97,
-   "p10_pt": 7.77,
-   "p90_pt": 8.97,
-   "paper_medians_p25_p75": [
-    7.97,
-    7.97
-   ]
-  },
-  "Nature Sustainability": {
-   "papers": 3,
-   "median_pt": 7.1,
-   "p10_pt": 5.56,
-   "p90_pt": 9.0,
-   "paper_medians_p25_p75": [
-    7.5,
-    8.5
-   ]
-  },
-  "Scientific Reports": {
-   "papers": 3,
-   "median_pt": 5.98,
-   "p10_pt": 3.97,
-   "p90_pt": 9.0,
-   "paper_medians_p25_p75": [
-    5.82,
-    8.5
-   ]
-  },
-  "International Journal of Climatology": {
-   "papers": 3,
-   "median_pt": 8.5,
-   "p10_pt": 7.34,
-   "p90_pt": 10.21,
-   "paper_medians_p25_p75": [
-    8.47,
-    8.86
-   ]
-  },
-  "Atmosphere": {
-   "papers": 3,
-   "median_pt": 8.3,
-   "p10_pt": 7.97,
-   "p90_pt": 8.97,
-   "paper_medians_p25_p75": [
-    8.14,
-    8.64
-   ]
-  },
-  "Climate Dynamics": {
-   "papers": 3,
-   "median_pt": 8.77,
-   "p10_pt": 7.03,
-   "p90_pt": 10.0,
-   "paper_medians_p25_p75": [
-    8.06,
-    8.68
-   ]
-  },
-  "Journal of Advances in Modeling Earth Systems": {
-   "papers": 3,
-   "median_pt": 8.0,
-   "p10_pt": 6.36,
-   "p90_pt": 9.0,
-   "paper_medians_p25_p75": [
-    7.49,
-    8.0
-   ]
+    5.5,
+    6.5
+   ],
+   "paper_medians_p10_p90": [
+    5.5,
+    6.5
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 33,
+    "typical_smallest_pt": 5.5,
+    "share_with_text_under_6pt": 0.88,
+    "share_with_text_under_5pt": 0.33
+   },
+   "within_a_paper": {
+    "papers": 33,
+    "small_end_pt": 5.5,
+    "typical_pt": 5.5,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.79,
+   "relative_to_body": 0.67,
+   "field": "Energy and environment"
   },
   "Nature Climate Change": {
-   "papers": 3,
-   "median_pt": 6.5,
-   "p10_pt": 4.0,
-   "p90_pt": 7.02,
+   "papers": 43,
+   "median_pt": 5.5,
+   "p10_pt": 4.5,
+   "p90_pt": 6.79,
    "paper_medians_p25_p75": [
+    5.5,
+    6.5
+   ],
+   "paper_medians_p10_p90": [
+    5.5,
+    6.5
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 43,
+    "typical_smallest_pt": 5.5,
+    "share_with_text_under_6pt": 0.88,
+    "share_with_text_under_5pt": 0.42
+   },
+   "within_a_paper": {
+    "papers": 43,
+    "small_end_pt": 5.5,
+    "typical_pt": 5.5,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.79,
+   "relative_to_body": 0.67,
+   "field": "Climate and Earth"
+  },
+  "Nature Communications": {
+   "papers": 50,
+   "median_pt": 6.85,
+   "p10_pt": 4.58,
+   "p90_pt": 9.19,
+   "paper_medians_p25_p75": [
+    5.96,
+    7.68
+   ],
+   "paper_medians_p10_p90": [
+    5.2,
+    8.11
+   ],
+   "read_by_ocr": 0.34,
+   "small_text": {
+    "papers": 33,
+    "typical_smallest_pt": 5.37,
+    "share_with_text_under_6pt": 0.79,
+    "share_with_text_under_5pt": 0.36
+   },
+   "within_a_paper": {
+    "papers": 33,
+    "small_end_pt": 5.37,
+    "typical_pt": 6.87,
+    "large_end_pt": 8.5
+   },
+   "relative_to_caption": 0.98,
+   "relative_to_body": 0.84,
+   "field": "General science"
+  },
+  "Nature Ecology & Evolution": {
+   "papers": 40,
+   "median_pt": 5.5,
+   "p10_pt": 4.0,
+   "p90_pt": 6.5,
+   "paper_medians_p25_p75": [
+    5.5,
+    6.3
+   ],
+   "paper_medians_p10_p90": [
+    4.95,
+    6.5
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 40,
+    "typical_smallest_pt": 4.75,
+    "share_with_text_under_6pt": 0.97,
+    "share_with_text_under_5pt": 0.5
+   },
+   "within_a_paper": {
+    "papers": 40,
+    "small_end_pt": 4.75,
+    "typical_pt": 5.5,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.79,
+   "relative_to_body": 0.67,
+   "field": "Life science and medicine"
+  },
+  "Nature Energy": {
+   "papers": 41,
+   "median_pt": 5.5,
+   "p10_pt": 4.5,
+   "p90_pt": 6.5,
+   "paper_medians_p25_p75": [
+    5.5,
+    6.5
+   ],
+   "paper_medians_p10_p90": [
+    5.5,
+    6.5
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 41,
+    "typical_smallest_pt": 4.5,
+    "share_with_text_under_6pt": 0.95,
+    "share_with_text_under_5pt": 0.54
+   },
+   "within_a_paper": {
+    "papers": 41,
+    "small_end_pt": 4.5,
+    "typical_pt": 5.5,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.79,
+   "relative_to_body": 0.67,
+   "field": "Energy and environment"
+  },
+  "Nature Food": {
+   "papers": 37,
+   "median_pt": 6.18,
+   "p10_pt": 5.0,
+   "p90_pt": 6.5,
+   "paper_medians_p25_p75": [
+    5.5,
+    6.5
+   ],
+   "paper_medians_p10_p90": [
+    5.5,
+    6.5
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 37,
+    "typical_smallest_pt": 5.5,
+    "share_with_text_under_6pt": 0.78,
+    "share_with_text_under_5pt": 0.27
+   },
+   "within_a_paper": {
+    "papers": 37,
+    "small_end_pt": 5.5,
+    "typical_pt": 6.18,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.81,
+   "relative_to_body": 0.7,
+   "field": "Energy and environment"
+  },
+  "Nature Genetics": {
+   "papers": 42,
+   "median_pt": 5.5,
+   "p10_pt": 4.5,
+   "p90_pt": 6.5,
+   "paper_medians_p25_p75": [
+    5.5,
+    6.06
+   ],
+   "paper_medians_p10_p90": [
+    5.09,
+    6.5
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 42,
+    "typical_smallest_pt": 5.0,
+    "share_with_text_under_6pt": 1.0,
+    "share_with_text_under_5pt": 0.45
+   },
+   "within_a_paper": {
+    "papers": 42,
+    "small_end_pt": 5.0,
+    "typical_pt": 5.5,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.79,
+   "relative_to_body": 0.67,
+   "field": "Life science and medicine"
+  },
+  "Nature Geoscience": {
+   "papers": 40,
+   "median_pt": 5.5,
+   "p10_pt": 4.5,
+   "p90_pt": 6.5,
+   "paper_medians_p25_p75": [
+    5.5,
+    6.12
+   ],
+   "paper_medians_p10_p90": [
+    5.5,
+    6.5
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 40,
+    "typical_smallest_pt": 4.86,
+    "share_with_text_under_6pt": 0.97,
+    "share_with_text_under_5pt": 0.55
+   },
+   "within_a_paper": {
+    "papers": 40,
+    "small_end_pt": 4.86,
+    "typical_pt": 5.5,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.79,
+   "relative_to_body": 0.67,
+   "field": "Climate and Earth"
+  },
+  "Nature Human Behaviour": {
+   "papers": 40,
+   "median_pt": 6.4,
+   "p10_pt": 4.5,
+   "p90_pt": 6.5,
+   "paper_medians_p25_p75": [
+    5.5,
+    6.5
+   ],
+   "paper_medians_p10_p90": [
+    5.45,
+    6.5
+   ],
+   "read_by_ocr": 0.03,
+   "small_text": {
+    "papers": 39,
+    "typical_smallest_pt": 5.5,
+    "share_with_text_under_6pt": 0.92,
+    "share_with_text_under_5pt": 0.33
+   },
+   "within_a_paper": {
+    "papers": 39,
+    "small_end_pt": 5.5,
+    "typical_pt": 6.5,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.81,
+   "relative_to_body": 0.7,
+   "field": "Life science and medicine"
+  },
+  "Nature Materials": {
+   "papers": 41,
+   "median_pt": 6.5,
+   "p10_pt": 4.5,
+   "p90_pt": 6.5,
+   "paper_medians_p25_p75": [
+    5.5,
+    6.5
+   ],
+   "paper_medians_p10_p90": [
+    5.5,
+    6.5
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 41,
+    "typical_smallest_pt": 4.5,
+    "share_with_text_under_6pt": 0.93,
+    "share_with_text_under_5pt": 0.66
+   },
+   "within_a_paper": {
+    "papers": 41,
+    "small_end_pt": 4.5,
+    "typical_pt": 6.5,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.81,
+   "relative_to_body": 0.7,
+   "field": "Physics, chemistry and materials"
+  },
+  "Nature Medicine": {
+   "papers": 39,
+   "median_pt": 5.98,
+   "p10_pt": 4.5,
+   "p90_pt": 7.0,
+   "paper_medians_p25_p75": [
+    5.5,
+    6.5
+   ],
+   "paper_medians_p10_p90": [
+    5.4,
+    6.5
+   ],
+   "read_by_ocr": 0.03,
+   "small_text": {
+    "papers": 38,
+    "typical_smallest_pt": 5.37,
+    "share_with_text_under_6pt": 0.84,
+    "share_with_text_under_5pt": 0.39
+   },
+   "within_a_paper": {
+    "papers": 38,
+    "small_end_pt": 5.37,
+    "typical_pt": 5.88,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.81,
+   "relative_to_body": 0.7,
+   "field": "Life science and medicine"
+  },
+  "Nature Methods": {
+   "papers": 42,
+   "median_pt": 5.86,
+   "p10_pt": 4.5,
+   "p90_pt": 7.0,
+   "paper_medians_p25_p75": [
+    5.5,
+    6.5
+   ],
+   "paper_medians_p10_p90": [
+    5.5,
+    6.5
+   ],
+   "read_by_ocr": 0.02,
+   "small_text": {
+    "papers": 41,
+    "typical_smallest_pt": 4.5,
+    "share_with_text_under_6pt": 0.88,
+    "share_with_text_under_5pt": 0.51
+   },
+   "within_a_paper": {
+    "papers": 41,
+    "small_end_pt": 4.5,
+    "typical_pt": 5.72,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.81,
+   "relative_to_body": 0.7,
+   "field": "Life science and medicine"
+  },
+  "Nature Physics": {
+   "papers": 40,
+   "median_pt": 6.47,
+   "p10_pt": 4.5,
+   "p90_pt": 6.76,
+   "paper_medians_p25_p75": [
+    5.5,
+    6.5
+   ],
+   "paper_medians_p10_p90": [
+    5.5,
+    6.5
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 40,
+    "typical_smallest_pt": 4.5,
+    "share_with_text_under_6pt": 0.97,
+    "share_with_text_under_5pt": 0.72
+   },
+   "within_a_paper": {
+    "papers": 40,
+    "small_end_pt": 4.5,
+    "typical_pt": 6.47,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.81,
+   "relative_to_body": 0.76,
+   "field": "Physics, chemistry and materials"
+  },
+  "Nature Sustainability": {
+   "papers": 42,
+   "median_pt": 6.3,
+   "p10_pt": 5.5,
+   "p90_pt": 6.5,
+   "paper_medians_p25_p75": [
+    5.5,
+    6.5
+   ],
+   "paper_medians_p10_p90": [
+    5.5,
+    6.5
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 42,
+    "typical_smallest_pt": 5.5,
+    "share_with_text_under_6pt": 0.88,
+    "share_with_text_under_5pt": 0.17
+   },
+   "within_a_paper": {
+    "papers": 42,
+    "small_end_pt": 5.5,
+    "typical_pt": 6.3,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.81,
+   "relative_to_body": 0.74,
+   "field": "Energy and environment"
+  },
+  "Nature Water": {
+   "papers": 40,
+   "median_pt": 5.5,
+   "p10_pt": 5.0,
+   "p90_pt": 6.5,
+   "paper_medians_p25_p75": [
+    5.5,
+    6.5
+   ],
+   "paper_medians_p10_p90": [
+    5.5,
+    6.5
+   ],
+   "read_by_ocr": 0.0,
+   "small_text": {
+    "papers": 40,
+    "typical_smallest_pt": 5.47,
+    "share_with_text_under_6pt": 0.97,
+    "share_with_text_under_5pt": 0.33
+   },
+   "within_a_paper": {
+    "papers": 40,
+    "small_end_pt": 5.47,
+    "typical_pt": 5.5,
+    "large_end_pt": 6.5
+   },
+   "relative_to_caption": 0.79,
+   "relative_to_body": 0.67,
+   "field": "Energy and environment"
+  },
+  "NeuroImage": {
+   "papers": 15,
+   "median_pt": 6.51,
+   "p10_pt": 4.72,
+   "p90_pt": 9.27,
+   "paper_medians_p25_p75": [
+    5.99,
+    7.0
+   ],
+   "paper_medians_p10_p90": [
+    5.34,
+    8.12
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.92,
+   "relative_to_body": 0.81,
+   "field": "Life science and medicine"
+  },
+  "Nucleic Acids Research": {
+   "papers": 39,
+   "median_pt": 7.04,
+   "p10_pt": 3.97,
+   "p90_pt": 9.55,
+   "paper_medians_p25_p75": [
+    5.91,
+    7.97
+   ],
+   "paper_medians_p10_p90": [
+    4.91,
+    8.66
+   ],
+   "read_by_ocr": 0.79,
+   "small_text": {
+    "papers": 8,
+    "typical_smallest_pt": 4.1,
+    "share_with_text_under_6pt": 0.62,
+    "share_with_text_under_5pt": 0.62
+   },
+   "within_a_paper": {
+    "papers": 8,
+    "small_end_pt": 4.1,
+    "typical_pt": 6.75,
+    "large_end_pt": 8.29
+   },
+   "relative_to_caption": 0.92,
+   "relative_to_body": 0.72,
+   "field": "Life science and medicine"
+  },
+  "PLOS Biology": {
+   "papers": 37,
+   "median_pt": 7.56,
+   "p10_pt": 4.83,
+   "p90_pt": 10.28,
+   "paper_medians_p25_p75": [
+    6.41,
+    8.13
+   ],
+   "paper_medians_p10_p90": [
+    6.07,
+    9.04
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.95,
+   "relative_to_body": 0.76,
+   "field": "Life science and medicine"
+  },
+  "PLOS Computational Biology": {
+   "papers": 39,
+   "median_pt": 7.06,
+   "p10_pt": 4.28,
+   "p90_pt": 10.19,
+   "paper_medians_p25_p75": [
+    6.11,
+    8.47
+   ],
+   "paper_medians_p10_p90": [
+    5.06,
+    9.22
+   ],
+   "read_by_ocr": 0.95,
+   "relative_to_caption": 0.88,
+   "relative_to_body": 0.71,
+   "field": "Life science and medicine"
+  },
+  "PLOS ONE": {
+   "papers": 32,
+   "median_pt": 6.97,
+   "p10_pt": 4.27,
+   "p90_pt": 9.75,
+   "paper_medians_p25_p75": [
+    5.91,
+    7.98
+   ],
+   "paper_medians_p10_p90": [
+    4.95,
+    8.41
+   ],
+   "read_by_ocr": 0.97,
+   "relative_to_caption": 0.85,
+   "relative_to_body": 0.7,
+   "field": "General science"
+  },
+  "PNAS": {
+   "papers": 40,
+   "median_pt": 6.98,
+   "p10_pt": 4.7,
+   "p90_pt": 9.21,
+   "paper_medians_p25_p75": [
+    5.7,
+    7.61
+   ],
+   "paper_medians_p10_p90": [
+    5.33,
+    8.37
+   ],
+   "read_by_ocr": 0.55,
+   "small_text": {
+    "papers": 18,
+    "typical_smallest_pt": 6.13,
+    "share_with_text_under_6pt": 0.33,
+    "share_with_text_under_5pt": 0.17
+   },
+   "within_a_paper": {
+    "papers": 18,
+    "small_end_pt": 6.13,
+    "typical_pt": 7.13,
+    "large_end_pt": 8.0
+   },
+   "relative_to_caption": 1.0,
+   "relative_to_body": 0.7,
+   "field": "General science"
+  },
+  "PNAS Nexus": {
+   "papers": 38,
+   "median_pt": 7.18,
+   "p10_pt": 4.76,
+   "p90_pt": 9.79,
+   "paper_medians_p25_p75": [
+    6.41,
+    7.96
+   ],
+   "paper_medians_p10_p90": [
+    5.85,
+    8.45
+   ],
+   "read_by_ocr": 0.87,
+   "small_text": {
+    "papers": 5,
+    "typical_smallest_pt": 5.88,
+    "share_with_text_under_6pt": 0.6,
+    "share_with_text_under_5pt": 0.0
+   },
+   "within_a_paper": {
+    "papers": 5,
+    "small_end_pt": 5.88,
+    "typical_pt": 8.0,
+    "large_end_pt": 9.33
+   },
+   "relative_to_caption": 1.03,
+   "relative_to_body": 0.92,
+   "field": "General science"
+  },
+  "Philosophical Transactions of the Royal Society A": {
+   "papers": 33,
+   "median_pt": 7.0,
+   "p10_pt": 4.43,
+   "p90_pt": 9.0,
+   "paper_medians_p25_p75": [
+    6.3,
+    8.0
+   ],
+   "paper_medians_p10_p90": [
+    4.86,
+    9.0
+   ],
+   "read_by_ocr": 0.18,
+   "small_text": {
+    "papers": 27,
+    "typical_smallest_pt": 6.0,
+    "share_with_text_under_6pt": 0.48,
+    "share_with_text_under_5pt": 0.15
+   },
+   "within_a_paper": {
+    "papers": 27,
+    "small_end_pt": 6.0,
+    "typical_pt": 7.0,
+    "large_end_pt": 9.0
+   },
+   "relative_to_caption": 0.7,
+   "relative_to_body": 0.78,
+   "field": "Physics, chemistry and materials"
+  },
+  "Proceedings of the Royal Society B": {
+   "papers": 38,
+   "median_pt": 8.0,
+   "p10_pt": 4.49,
+   "p90_pt": 9.0,
+   "paper_medians_p25_p75": [
+    5.67,
+    9.0
+   ],
+   "paper_medians_p10_p90": [
     5.0,
-    6.25
-   ]
+    9.0
+   ],
+   "read_by_ocr": 0.37,
+   "small_text": {
+    "papers": 24,
+    "typical_smallest_pt": 7.3,
+    "share_with_text_under_6pt": 0.25,
+    "share_with_text_under_5pt": 0.17
+   },
+   "within_a_paper": {
+    "papers": 24,
+    "small_end_pt": 7.3,
+    "typical_pt": 8.55,
+    "large_end_pt": 9.0
+   },
+   "relative_to_caption": 0.8,
+   "relative_to_body": 0.89,
+   "field": "Life science and medicine"
+  },
+  "Royal Society Open Science": {
+   "papers": 37,
+   "median_pt": 8.0,
+   "p10_pt": 4.6,
+   "p90_pt": 9.0,
+   "paper_medians_p25_p75": [
+    5.7,
+    9.0
+   ],
+   "paper_medians_p10_p90": [
+    5.11,
+    9.0
+   ],
+   "read_by_ocr": 0.43,
+   "small_text": {
+    "papers": 21,
+    "typical_smallest_pt": 6.0,
+    "share_with_text_under_6pt": 0.43,
+    "share_with_text_under_5pt": 0.1
+   },
+   "within_a_paper": {
+    "papers": 21,
+    "small_end_pt": 6.0,
+    "typical_pt": 9.0,
+    "large_end_pt": 9.0
+   },
+   "relative_to_caption": 0.8,
+   "relative_to_body": 0.89,
+   "field": "General science"
+  },
+  "Science Advances": {
+   "papers": 39,
+   "median_pt": 6.75,
+   "p10_pt": 4.36,
+   "p90_pt": 8.91,
+   "paper_medians_p25_p75": [
+    5.93,
+    7.21
+   ],
+   "paper_medians_p10_p90": [
+    5.49,
+    7.61
+   ],
+   "read_by_ocr": 0.85,
+   "small_text": {
+    "papers": 6,
+    "typical_smallest_pt": 5.45,
+    "share_with_text_under_6pt": 0.67,
+    "share_with_text_under_5pt": 0.33
+   },
+   "within_a_paper": {
+    "papers": 6,
+    "small_end_pt": 5.45,
+    "typical_pt": 6.8,
+    "large_end_pt": 7.73
+   },
+   "relative_to_caption": 0.9,
+   "relative_to_body": 0.71,
+   "field": "General science"
+  },
+  "Scientific Data": {
+   "papers": 40,
+   "median_pt": 6.23,
+   "p10_pt": 4.07,
+   "p90_pt": 8.41,
+   "paper_medians_p25_p75": [
+    5.45,
+    7.06
+   ],
+   "paper_medians_p10_p90": [
+    5.03,
+    7.99
+   ],
+   "read_by_ocr": 0.6,
+   "small_text": {
+    "papers": 16,
+    "typical_smallest_pt": 5.26,
+    "share_with_text_under_6pt": 0.56,
+    "share_with_text_under_5pt": 0.44
+   },
+   "within_a_paper": {
+    "papers": 16,
+    "small_end_pt": 5.26,
+    "typical_pt": 6.55,
+    "large_end_pt": 7.46
+   },
+   "relative_to_caption": 0.69,
+   "relative_to_body": 0.7,
+   "field": "General science"
+  },
+  "Scientific Reports": {
+   "papers": 42,
+   "median_pt": 6.91,
+   "p10_pt": 4.11,
+   "p90_pt": 9.51,
+   "paper_medians_p25_p75": [
+    5.36,
+    7.96
+   ],
+   "paper_medians_p10_p90": [
+    4.59,
+    8.56
+   ],
+   "read_by_ocr": 0.76,
+   "small_text": {
+    "papers": 10,
+    "typical_smallest_pt": 4.65,
+    "share_with_text_under_6pt": 0.9,
+    "share_with_text_under_5pt": 0.7
+   },
+   "within_a_paper": {
+    "papers": 10,
+    "small_end_pt": 4.65,
+    "typical_pt": 5.67,
+    "large_end_pt": 7.17
+   },
+   "relative_to_caption": 0.77,
+   "relative_to_body": 0.77,
+   "field": "General science"
+  },
+  "Sensors": {
+   "papers": 40,
+   "median_pt": 6.66,
+   "p10_pt": 3.97,
+   "p90_pt": 10.02,
+   "paper_medians_p25_p75": [
+    5.51,
+    8.44
+   ],
+   "paper_medians_p10_p90": [
+    4.39,
+    10.02
+   ],
+   "read_by_ocr": 0.3,
+   "small_text": {
+    "papers": 28,
+    "typical_smallest_pt": 5.85,
+    "share_with_text_under_6pt": 0.54,
+    "share_with_text_under_5pt": 0.36
+   },
+   "within_a_paper": {
+    "papers": 28,
+    "small_end_pt": 5.85,
+    "typical_pt": 6.96,
+    "large_end_pt": 9.96
+   },
+   "relative_to_caption": 0.74,
+   "relative_to_body": 0.66,
+   "field": "Energy and environment"
+  },
+  "The Cryosphere": {
+   "papers": 40,
+   "median_pt": 6.0,
+   "p10_pt": 4.23,
+   "p90_pt": 8.44,
+   "paper_medians_p25_p75": [
+    5.42,
+    6.68
+   ],
+   "paper_medians_p10_p90": [
+    4.92,
+    7.33
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.67,
+   "relative_to_body": 0.6,
+   "field": "Climate and Earth"
+  },
+  "The EMBO Journal": {
+   "papers": 35,
+   "median_pt": 7.7,
+   "p10_pt": 4.73,
+   "p90_pt": 10.5,
+   "paper_medians_p25_p75": [
+    6.72,
+    9.75
+   ],
+   "paper_medians_p10_p90": [
+    5.78,
+    10.0
+   ],
+   "read_by_ocr": 0.49,
+   "small_text": {
+    "papers": 18,
+    "typical_smallest_pt": 7.1,
+    "share_with_text_under_6pt": 0.39,
+    "share_with_text_under_5pt": 0.17
+   },
+   "within_a_paper": {
+    "papers": 18,
+    "small_end_pt": 7.1,
+    "typical_pt": 8.45,
+    "large_end_pt": 10.0
+   },
+   "relative_to_body": 0.87,
+   "field": "Life science and medicine"
+  },
+  "The Journal of Neuroscience": {
+   "papers": 39,
+   "median_pt": 7.18,
+   "p10_pt": 4.73,
+   "p90_pt": 10.07,
+   "paper_medians_p25_p75": [
+    6.13,
+    7.85
+   ],
+   "paper_medians_p10_p90": [
+    5.6,
+    8.59
+   ],
+   "read_by_ocr": 0.87,
+   "small_text": {
+    "papers": 5,
+    "typical_smallest_pt": 5.45,
+    "share_with_text_under_6pt": 0.6,
+    "share_with_text_under_5pt": 0.4
+   },
+   "within_a_paper": {
+    "papers": 5,
+    "small_end_pt": 5.45,
+    "typical_pt": 6.94,
+    "large_end_pt": 10.02
+   },
+   "relative_to_body": 0.76,
+   "field": "Life science and medicine"
+  },
+  "Theoretical and Applied Climatology": {
+   "papers": 40,
+   "median_pt": 7.05,
+   "p10_pt": 4.17,
+   "p90_pt": 9.57,
+   "paper_medians_p25_p75": [
+    5.62,
+    7.91
+   ],
+   "paper_medians_p10_p90": [
+    4.75,
+    8.32
+   ],
+   "read_by_ocr": 0.82,
+   "small_text": {
+    "papers": 7,
+    "typical_smallest_pt": 5.62,
+    "share_with_text_under_6pt": 0.57,
+    "share_with_text_under_5pt": 0.14
+   },
+   "within_a_paper": {
+    "papers": 7,
+    "small_end_pt": 5.62,
+    "typical_pt": 7.18,
+    "large_end_pt": 9.09
+   },
+   "relative_to_caption": 0.83,
+   "relative_to_body": 0.7,
+   "field": "Climate and Earth"
+  },
+  "Weather and Climate Dynamics": {
+   "papers": 40,
+   "median_pt": 6.1,
+   "p10_pt": 4.29,
+   "p90_pt": 8.18,
+   "paper_medians_p25_p75": [
+    5.58,
+    6.36
+   ],
+   "paper_medians_p10_p90": [
+    5.07,
+    7.13
+   ],
+   "read_by_ocr": 1.0,
+   "relative_to_caption": 0.68,
+   "relative_to_body": 0.61,
+   "field": "Climate and Earth"
+  },
+  "eLife": {
+   "papers": 39,
+   "median_pt": 7.0,
+   "p10_pt": 4.1,
+   "p90_pt": 10.0,
+   "paper_medians_p25_p75": [
+    5.9,
+    8.01
+   ],
+   "paper_medians_p10_p90": [
+    4.65,
+    8.9
+   ],
+   "read_by_ocr": 0.64,
+   "small_text": {
+    "papers": 14,
+    "typical_smallest_pt": 5.29,
+    "share_with_text_under_6pt": 0.71,
+    "share_with_text_under_5pt": 0.43
+   },
+   "within_a_paper": {
+    "papers": 14,
+    "small_end_pt": 5.29,
+    "typical_pt": 7.19,
+    "large_end_pt": 9.04
+   },
+   "relative_to_caption": 0.87,
+   "relative_to_body": 0.78,
+   "field": "Life science and medicine"
+  },
+  "iScience": {
+   "papers": 40,
+   "median_pt": 6.41,
+   "p10_pt": 3.86,
+   "p90_pt": 8.78,
+   "paper_medians_p25_p75": [
+    5.52,
+    7.25
+   ],
+   "paper_medians_p10_p90": [
+    4.54,
+    8.0
+   ],
+   "read_by_ocr": 0.82,
+   "small_text": {
+    "papers": 7,
+    "typical_smallest_pt": 5.2,
+    "share_with_text_under_6pt": 0.71,
+    "share_with_text_under_5pt": 0.29
+   },
+   "within_a_paper": {
+    "papers": 7,
+    "small_end_pt": 5.2,
+    "typical_pt": 6.51,
+    "large_end_pt": 8.1
+   },
+   "relative_to_caption": 0.86,
+   "relative_to_body": 0.76,
+   "field": "General science"
+  },
+  "npj Climate and Atmospheric Science": {
+   "papers": 43,
+   "median_pt": 6.47,
+   "p10_pt": 4.42,
+   "p90_pt": 8.77,
+   "paper_medians_p25_p75": [
+    5.9,
+    7.15
+   ],
+   "paper_medians_p10_p90": [
+    4.81,
+    7.65
+   ],
+   "read_by_ocr": 0.88,
+   "small_text": {
+    "papers": 5,
+    "typical_smallest_pt": 5.71,
+    "share_with_text_under_6pt": 0.6,
+    "share_with_text_under_5pt": 0.2
+   },
+   "within_a_paper": {
+    "papers": 5,
+    "small_end_pt": 5.71,
+    "typical_pt": 6.96,
+    "large_end_pt": 8.37
+   },
+   "relative_to_caption": 0.82,
+   "relative_to_body": 0.72,
+   "field": "Climate and Earth"
+  },
+  "npj Urban Sustainability": {
+   "papers": 38,
+   "median_pt": 6.77,
+   "p10_pt": 4.28,
+   "p90_pt": 8.62,
+   "paper_medians_p25_p75": [
+    5.9,
+    7.43
+   ],
+   "paper_medians_p10_p90": [
+    4.79,
+    8.16
+   ],
+   "read_by_ocr": 0.68,
+   "small_text": {
+    "papers": 12,
+    "typical_smallest_pt": 6.48,
+    "share_with_text_under_6pt": 0.42,
+    "share_with_text_under_5pt": 0.25
+   },
+   "within_a_paper": {
+    "papers": 12,
+    "small_end_pt": 6.48,
+    "typical_pt": 7.01,
+    "large_end_pt": 7.97
+   },
+   "relative_to_caption": 0.88,
+   "relative_to_body": 0.75,
+   "field": "Energy and environment"
   }
- }
+ },
+ "histogram": {
+  "edges_pt": [
+   3.0,
+   3.25,
+   3.5,
+   3.75,
+   4.0,
+   4.25,
+   4.5,
+   4.75,
+   5.0,
+   5.25,
+   5.5,
+   5.75,
+   6.0,
+   6.25,
+   6.5,
+   6.75,
+   7.0,
+   7.25,
+   7.5,
+   7.75,
+   8.0,
+   8.25,
+   8.5,
+   8.75,
+   9.0,
+   9.25,
+   9.5,
+   9.75,
+   10.0,
+   10.25,
+   10.5,
+   10.75,
+   11.0,
+   11.25,
+   11.5,
+   11.75,
+   12.0
+  ],
+  "text": [
+   8,
+   2,
+   2,
+   3,
+   5,
+   5,
+   21,
+   7,
+   39,
+   18,
+   283,
+   19,
+   78,
+   34,
+   231,
+   37,
+   103,
+   22,
+   15,
+   24,
+   52,
+   11,
+   8,
+   10,
+   62,
+   8,
+   6,
+   9,
+   19,
+   1,
+   2,
+   2,
+   3,
+   3,
+   1,
+   16
+  ],
+  "ocr": [
+   6,
+   4,
+   11,
+   20,
+   31,
+   29,
+   66,
+   82,
+   91,
+   113,
+   145,
+   132,
+   154,
+   208,
+   148,
+   165,
+   162,
+   124,
+   109,
+   105,
+   76,
+   60,
+   38,
+   34,
+   26,
+   19,
+   8,
+   11,
+   4,
+   3,
+   3,
+   1,
+   4,
+   1,
+   0,
+   1
+  ]
+ },
+ "label_histogram": {
+  "edges_pt": [
+   3.0,
+   3.25,
+   3.5,
+   3.75,
+   4.0,
+   4.25,
+   4.5,
+   4.75,
+   5.0,
+   5.25,
+   5.5,
+   5.75,
+   6.0,
+   6.25,
+   6.5,
+   6.75,
+   7.0,
+   7.25,
+   7.5,
+   7.75,
+   8.0,
+   8.25,
+   8.5,
+   8.75,
+   9.0,
+   9.25,
+   9.5,
+   9.75,
+   10.0,
+   10.25,
+   10.5,
+   10.75,
+   11.0,
+   11.25,
+   11.5,
+   11.75,
+   12.0
+  ],
+  "share": [
+   0.0184,
+   0.0027,
+   0.0141,
+   0.0061,
+   0.0156,
+   0.0082,
+   0.0507,
+   0.0114,
+   0.043,
+   0.0195,
+   0.1971,
+   0.0141,
+   0.0534,
+   0.0209,
+   0.2116,
+   0.0201,
+   0.0704,
+   0.013,
+   0.0134,
+   0.0152,
+   0.0421,
+   0.0105,
+   0.0096,
+   0.0082,
+   0.0472,
+   0.0219,
+   0.0052,
+   0.0053,
+   0.0109,
+   0.0019,
+   0.0025,
+   0.0011,
+   0.0023,
+   0.0015,
+   0.0008,
+   0.0101
+  ],
+  "labels": 181493
+ },
+ "caption_ratio_histogram": {
+  "edges": [
+   0.4,
+   0.45,
+   0.5,
+   0.55,
+   0.6,
+   0.65,
+   0.7,
+   0.75,
+   0.8,
+   0.85,
+   0.9,
+   0.95,
+   1.0,
+   1.05,
+   1.1,
+   1.15,
+   1.2,
+   1.25,
+   1.3,
+   1.35,
+   1.4,
+   1.45,
+   1.5,
+   1.55,
+   1.6
+  ],
+  "papers": [
+   31,
+   42,
+   78,
+   141,
+   201,
+   216,
+   283,
+   559,
+   301,
+   289,
+   388,
+   148,
+   137,
+   61,
+   80,
+   29,
+   27,
+   13,
+   11,
+   7,
+   7,
+   3,
+   1,
+   3
+  ]
+ },
+ "ocr_check": {
+  "figures": 2051,
+  "ocr_reads_too_large_by": 1.041,
+  "figure_ratio_p10_p90_after_correction": [
+   0.85,
+   1.18
+  ],
+  "small_end_ratio": 0.93
+ },
+ "figures": {
+  "with_stored_text": 7063,
+  "without_stored_text": 19921
+ },
+ "years": [
+  2001,
+  2026
+ ]
 }

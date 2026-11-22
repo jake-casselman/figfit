@@ -7,10 +7,28 @@
 </p>
 
 <p align="center">
-  <img alt="version 0.2.3" src="https://img.shields.io/badge/version-0.2.3-2a78d6">
+  <img alt="version 0.3.0" src="https://img.shields.io/badge/version-0.3.0-2a78d6">
   <img alt="Python 3.10 or later" src="https://img.shields.io/badge/python-3.10%2B-2a78d6">
   <img alt="works with matplotlib" src="https://img.shields.io/badge/works%20with-matplotlib-2a78d6">
   <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-1baf7a">
+</p>
+
+<h2 align="center">How big is the text in a published figure? About 6.5 pt.</h2>
+
+<p align="center">
+  figfont measured the figures of <b>3,363 journal articles from 132 journals</b>, as they print on the page.<br>
+  Half of the papers have figure text between 5.5 and 7.4 pt, and the five fields are within half a point of each other.<br>
+  Only one paper in ten is under 5 pt. A figure drawn wide and shrunk to fit a column often is.
+</p>
+
+<p align="center">
+  <img src="docs/images/reference.png" width="880"
+       alt="How many of 3,363 published papers have each figure text size, from 4 to 11 pt, and the range for each of five fields. The typical paper is at 6.5 pt.">
+</p>
+
+<p align="center">
+  <a href="#3-compare-with-published-papers">How it was measured</a> &middot;
+  <a href="docs/reference.md">The numbers for 90 journals</a>
 </p>
 
 <h3 align="center">
@@ -37,7 +55,7 @@
 
 A figure drawn 13 in wide and placed 5.15 in wide on the page is shrunk to 40 % of its size, and
 its text shrinks with it. Text set at 10 pt prints at 4 pt. Figures in published papers print at
-about 8 pt.
+about 6.5 pt, and nine in ten papers are at 5 pt or more.
 
 Making the text bigger fixes the size and breaks the layout. Labels land on each other, on the
 next panel, or run off the figure. figfont does both jobs:
@@ -45,8 +63,8 @@ next panel, or run off the figure. figfont does both jobs:
 | | Job | Functions |
 |---|---|---|
 | 1 | [Work out the size](#1-work-out-the-size) a font prints at, and the size to draw it at | `printed_pt` `drawn_pt_for` `font_scale_for` `panel_width_for` `stitched_width` |
-| 2 | [Measure what prints](#2-measure-what-prints), from a figure file or a compiled paper | `figure` `figure_pdf_text` `figure_ocr` `pdf_figure_text` |
-| 3 | [Compare with published papers](#3-compare-with-published-papers) | `reference` `verdict` |
+| 2 | [Measure what prints](#2-measure-what-prints), from a figure file or a compiled paper | `figure` `figure_pdf_text` `figure_ocr` `pdf_figure_text` `paper_figures` |
+| 3 | [Compare with published papers](#3-compare-with-published-papers) | `reference` `verdict` `journals` `fields` |
 | 4 | [Set the printed sizes](#4-set-the-printed-sizes) on a matplotlib figure | `set_printed_fonts` `scale_fonts` |
 | 5 | [Pick a size for small panels](#5-pick-a-size-for-small-panels) | `suggest_size` `density` |
 | 6 | [Find colliding text](#6-find-colliding-text) | `overlaps` `report_overlaps` |
@@ -159,15 +177,33 @@ here is 6.7 pt, where the PDF of the same figure says 7.0 pt. See
 ### Figures inside a compiled paper
 
 `pdf_figure_text("paper.pdf")` measures the figures where they sit in the finished paper, so it
-needs no width. It keeps the text that is not in the body font and lies inside a figure, and
-leaves out the body text and the captions.
+needs no width. It looks for the places where something is drawn on a page that has a figure
+caption, and keeps the text in or right beside them that is not in one of the paper's own fonts.
+The body text and the captions are left out.
 
 <p align="center">
   <img src="docs/images/paper.png" width="880"
        alt="A page of a paper. The 45 pieces of text inside its figure are outlined; the body text and the caption are greyed.">
 </p>
 
-Every measuring function returns a `Result`:
+`paper_figures("paper.pdf")` gives the same text one figure at a time, with the rest of what it
+found in the paper:
+
+```python
+found = figfont.paper_figures("paper.pdf")
+found["body_pt"], found["caption_pt"]     # (10.0, 9.0): the size of the paper's main text and captions
+for f in found["figures"]:                # one entry for each figure that stores its text
+    f["page"], f["width_in"]              # (1, 5.16): the page, and the width the figure prints at
+    f["sizes"]                            # the size of each of its 45 pieces of text, in points
+found["no_text"]                          # []: the figures with no text to read
+```
+
+A figure lands in `no_text` when the PDF holds it as an image, or holds its letters as drawn
+shapes. That is common: about two papers in three are like this (see
+[section 3](#3-compare-with-published-papers)). Measure such a figure from its own file, with
+`figure` or `figure_ocr`.
+
+Every other measuring function returns a `Result`:
 
 | Attribute | Meaning |
 |---|---|
@@ -179,45 +215,120 @@ Every measuring function returns a `Result`:
 
 ## 3. Compare with published papers
 
-figfont ships with the printed figure-text sizes of 111 journal articles from 62 journals. The
-median is 8.0 pt, and half of the papers have a median between 7.4 and 9.0 pt.
+figfont ships with the printed size of figure text in 3,363 journal articles from 132 journals,
+nearly all published from 2022 to 2025. Each paper counts once, with the median size of the labels
+in its figures.
+
+| | |
+|---|---|
+| The typical paper | 6.5 pt |
+| Half of the papers | 5.5 to 7.4 pt |
+| 8 in 10 papers | 5.0 to 8.4 pt |
+| The five fields | 6.3 pt (climate and Earth) to 6.8 pt (physics, chemistry and materials) |
 
 <p align="center">
   <img src="docs/images/reference.png" width="880"
-       alt="The range of figure text sizes in 13 journals and in all 111 papers, with the bands that verdict calls small, ok and large.">
+       alt="Top: how many of the 3,363 papers have each figure text size, split into papers with exact sizes and papers read by OCR, with the bands that verdict calls small, ok and large. Bottom: the range for all papers and for each of five fields.">
 </p>
+
+Journals differ more than fields do. The 90 journals with ten or more papers have their own
+numbers, from 4.8 pt (Genome Biology) to 8.4 pt (Journal of the Royal Society Interface). The
+thick bar is the middle half of a journal's papers, the thin line 8 in 10 of them, and the grey
+band the middle half of all papers.
+
+<p align="center">
+  <img src="docs/images/journals.png" width="880"
+       alt="The range of figure text sizes in each of 90 journals, grouped into five fields.">
+</p>
+
+The same numbers as a table: [`docs/reference.md`](docs/reference.md).
+
+### Ask for the numbers
 
 ```python
 figfont.reference()
-# {'papers': 111, 'median_pt': 7.97, 'p10_pt': 6.0, 'p90_pt': 9.96, 'paper_medians_p25_p75': [7.39, 8.97]}
+# {'papers': 3363, 'median_pt': 6.5, 'p10_pt': 4.39, 'p90_pt': 9.0,
+#  'paper_medians_p25_p75': [5.54, 7.35], 'paper_medians_p10_p90': [5.03, 8.37], 'read_by_ocr': 0.65,
+#  'small_text': {'papers': 1169, 'typical_smallest_pt': 5.5,
+#                 'share_with_text_under_6pt': 0.7, 'share_with_text_under_5pt': 0.34},
+#  'within_a_paper': {'papers': 1169, 'small_end_pt': 5.5, 'typical_pt': 6.5, 'large_end_pt': 7.0},
+#  'relative_to_caption': 0.8, 'relative_to_body': 0.71, 'journals': 132}
 
-figfont.reference("Nature")
-# {'papers': 7, 'median_pt': 7.0, 'p10_pt': 5.5, 'p90_pt': 8.0, 'paper_medians_p25_p75': [6.0, 7.0]}
-
-figfont.verdict(figfont.figure("before.pdf", 5.15))
-# {'name': 'before.pdf', 'method': 'text', 'n': 52, 'median_pt': 3.96, 'p10_pt': 3.96, 'p90_pt': 3.96,
-#  'reference_median_pt': 7.97, 'reference_range_pt': [7.39, 8.97],
-#  'verdict': 'small', 'scale_to_reference': 2.01}
+figfont.reference("Nature")["median_pt"]                                 # 6.0
+figfont.reference(field="Climate and Earth")["paper_medians_p25_p75"]    # [5.5, 7.09]
+figfont.fields()            # the five field names
+figfont.journals()          # the 90 journal names
 ```
 
-`verdict` gives one word for a figure:
+| Key | Meaning |
+|---|---|
+| `papers` | how many papers the numbers come from |
+| `median_pt` | the typical paper: the median of the papers' own medians |
+| `paper_medians_p25_p75` | the middle half of the papers. `verdict` uses this range |
+| `paper_medians_p10_p90` | 8 in 10 papers |
+| `p10_pt`, `p90_pt` | the small and large end of all labels put together (at most 200 from one paper) |
+| `read_by_ocr` | the share of the papers that had to be read by OCR |
+| `small_text` | the small end, from the papers with exact sizes (below) |
+| `within_a_paper` | the small end, the typical size and the large end inside one typical paper |
+| `relative_to_caption`, `relative_to_body` | figure text size divided by the paper's caption size, and by its body text size |
+
+A journal name that has no numbers of its own gives the numbers for all papers.
+
+### Give a figure a verdict
+
+```python
+figfont.verdict(figfont.figure("before.pdf", 5.15))
+# {'name': 'before.pdf', 'method': 'text', 'n': 52, 'median_pt': 3.96, 'p10_pt': 3.96, 'p90_pt': 3.96,
+#  'reference_median_pt': 6.5, 'reference_range_pt': [5.54, 7.35],
+#  'verdict': 'small', 'scale_to_reference': 1.64}
+```
 
 | Verdict | When |
 |---|---|
 | `small` | the median is below the middle half of papers, or a tenth of the text is under 6 pt (`smallest_ok`) |
 | `ok` | the median is inside the middle half of papers |
-| `large` | the median is above it |
+| `large` | the median is above it. Nothing is wrong with that; the text just takes more room than in most papers |
 
 `scale_to_reference` is the factor that would bring the figure's median to the published median.
+Pass `journal="Nature"` or `field="Climate and Earth"` to compare with one journal or one field.
 
-Pass `journal=` to compare with one journal. The 13 journals with three or more papers have their
-own numbers: Atmosphere, Climate Dynamics, Communications Earth & Environment, Energy and
-Buildings, International Journal of Climatology, Journal of Advances in Modeling Earth Systems,
-Journal of Climate, Nature, Nature Climate Change, Nature Communications, Nature Sustainability,
-npj Climate and Atmospheric Science and Scientific Reports. Any other name falls back to all
-papers.
+### The small end, and the caption
 
-The reference file ([`figfont/reference.json`](figfont/reference.json)) holds summary numbers only.
+<p align="center">
+  <img src="docs/images/small_text.png" width="880"
+       alt="Left: the share of papers in which a tenth of the figure text is under 6 pt and under 5 pt, for all papers and each field. Right: figure text size divided by caption size, for every paper.">
+</p>
+
+These come from the 1,169 papers with exact sizes.
+
+- Inside one typical paper, the labels run from 5.5 pt at the small end to 7.0 pt at the large
+  end, with 6.5 pt in the middle.
+- In 70 % of the papers a tenth of the figure text is under 6 pt, and in 34 % it is under 5 pt.
+  Much of that is subscripts, superscripts and the numbers on colour bars. So the 6 pt that
+  `verdict` uses for `smallest_ok` is stricter than what gets published. Pass `smallest_ok=5` to
+  follow the papers.
+- Figure text is 0.8 of the size of the paper's own caption, and 0.7 of its body text.
+- Two sizes are used far more than any other: 6.5 pt (21 % of all labels) and 5.5 pt (20 %).
+
+### How the papers were measured
+
+- `paper_figures` finds the figures on each page and reads the text stored in them. The size is
+  the one on the journal's page, so no width has to be known.
+- 35 % of the papers store their figure text, and their sizes are exact. The other 65 % hold
+  their figures as images. Those were read by OCR, from up to four figures in each paper.
+- OCR reads a little large. On 2,051 figures where both the stored text and OCR could be read,
+  OCR was 4 % too large, so every OCR size was divided by 1.04. After that the two groups agree:
+  the typical paper is 6.5 pt in both.
+- 3,704 papers were read. 341 are left out: 328 had no figure text that could be read
+  (photographs, too few labels, or no figures), 11 had main text under 7 pt or over 12.5 pt, so
+  were not set like a journal page, one was there twice and one could not be opened.
+- Of the 3,704 papers, 2,616 are open-access articles from PubMed Central, 433 from Nature
+  Portfolio, 400 from Copernicus and 120 from Springer. The other 135 are from the author's own
+  library.
+
+[`figfont/reference.json`](figfont/reference.json) holds summary numbers only. Up to version 0.2.3
+it held 111 papers and gave 8 pt. Those papers were read from stored text only, and 64 of them
+have no stored figure text, so much of that number came from other text on the page.
 
 ## 4. Set the printed sizes
 
@@ -244,13 +355,21 @@ set_printed_fonts(fig, printed_width=3.4, sizes={"tick": 8})    # change one of 
 | `legend` | legend entries and legend titles, on a panel or on the figure | 8 pt |
 | `other` | everything else: notes in a panel, figure titles, panel letters | 8 pt |
 
+These defaults are in the upper part of what is published (half of the papers are between 5.5
+and 7.4 pt), and a figure set this way gets the verdict `ok`. To match the typical paper instead:
+
+```python
+set_printed_fonts(fig, printed_width=3.4,
+                  sizes={"tick": 6, "label": 6.5, "title": 6.5, "legend": 6.5, "other": 6.5})
+```
+
 `scale_fonts(fig, factor)` multiplies the size of every piece of text by one factor, which keeps
 the differences between them.
 
 ## 5. Pick a size for small panels
 
-8 pt is the published average, but it comes mostly from figures with a few large panels. On a grid
-of small panels, 8 pt words are as big as the panels and the tick labels run into each other.
+The sizes in section 4 suit a figure with a few large panels. On a grid of small panels, 8 pt
+words are as big as the panels and the tick labels run into each other.
 
 `suggest_size(fig, printed_pt=8)` measures how wide each panel is in heights of its own text. It
 picks the size that makes the narrowest panel 15 text heights wide, and keeps it between 6 and
@@ -431,42 +550,48 @@ its coordinate labels on every draw, so the gap between them has to be cartopy's
 
 ```console
 $ figfont check before.pdf after.pdf
-published papers: median 7.97 pt, middle half of papers 7.39-8.97 pt
-  before.pdf                       median  3.96 pt (1.0 mm caps)  p10  3.96  SMALL  x2.01
-  after.pdf                        median  7.00 pt (1.7 mm caps)  p10  7.00  SMALL  x1.14
+published papers: median 6.5 pt, middle half of papers 5.54-7.35 pt
+  before.pdf                       median  3.96 pt (1.0 mm caps)  p10  3.96  SMALL  x1.64
+  after.pdf                        median  7.00 pt (1.7 mm caps)  p10  7.00  OK     x0.93
 ```
 
 Each line gives the median size, the height of a capital letter at that size, the 10th
 percentile, the verdict, and the factor that would bring the median to the published median.
 
 The median of a figure is mostly its tick numbers, because there are more of them than of
-anything else. With 7 pt ticks the figure sits just under the middle half of all papers, and
-inside the middle half for Nature:
+anything else. `x0.93` for `after.pdf` says its text is a little larger than in the typical
+paper: every font times 0.93 would put it on the published median.
+
+Compare with one journal or one field:
 
 ```console
 $ figfont check after.pdf --journal "Nature"
-published papers: median 7.0 pt, middle half of papers 6.0-7.0 pt
-  after.pdf                        median  7.00 pt (1.7 mm caps)  p10  7.00  OK     x1.0
-```
+published papers (Nature): median 6.0 pt, middle half of papers 6.0-7.0 pt
+  after.pdf                        median  7.00 pt (1.7 mm caps)  p10  7.00  OK     x0.86
 
-For a journal that prints larger, raise the ticks with
-`set_printed_fonts(fig, width, sizes={"tick": 8})`.
+$ figfont check after.pdf --field "Climate and Earth"
+published papers (Climate and Earth): median 6.28 pt, middle half of papers 5.5-7.09 pt
+  after.pdf                        median  7.00 pt (1.7 mm caps)  p10  7.00  OK     x0.9
+```
 
 A width goes after `@`, in inches, or once for all files with `--width`. Without one, the width is
 372 pt (5.17 in), a common text width. Images are read with OCR:
 
 ```console
 $ figfont check after.png@5.15
-published papers: median 7.97 pt, middle half of papers 7.39-8.97 pt
-  after.png                        median  6.66 pt (1.6 mm caps)  p10  5.63  SMALL  x1.2
+published papers: median 6.5 pt, middle half of papers 5.54-7.35 pt
+  after.png                        median  6.66 pt (1.6 mm caps)  p10  5.63  SMALL  x0.98
 ```
+
+This is the same figure as `after.pdf`. OCR reads its smallest text as 5.6 pt where the PDF says
+7 pt, and that takes the verdict to `small`. When there is a PDF, measure the PDF.
 
 A compiled paper needs no width:
 
 ```console
 $ figfont paper paper.pdf
-published papers: median 7.97 pt, middle half of papers 7.39-8.97 pt
-  paper.pdf                        median  7.00 pt (1.7 mm caps)  p10  7.00  SMALL  x1.14
+published papers: median 6.5 pt, middle half of papers 5.54-7.35 pt
+  paper.pdf                        median  7.00 pt (1.7 mm caps)  p10  7.00  OK     x0.93
 ```
 
 The size to draw at, for a target of 8 pt on a 13 in figure printed 5.15 in wide:
@@ -480,7 +605,23 @@ $ figfont scale 8 13 5.15
 
 ```console
 $ figfont check after.pdf --json
-[{"name": "after.pdf", "method": "text", "n": 45, "median_pt": 7.0, "p10_pt": 7.0, "p90_pt": 8.0, "reference_median_pt": 7.97, "reference_range_pt": [7.39, 8.97], "verdict": "small", "scale_to_reference": 1.14}]
+[
+ {
+  "name": "after.pdf",
+  "method": "text",
+  "n": 45,
+  "median_pt": 7.0,
+  "p10_pt": 7.0,
+  "p90_pt": 8.0,
+  "reference_median_pt": 6.5,
+  "reference_range_pt": [
+   5.54,
+   7.35
+  ],
+  "verdict": "ok",
+  "scale_to_reference": 0.93
+ }
+]
 ```
 
 The files used here are in [`docs/examples`](docs/examples).
@@ -498,8 +639,11 @@ The files used here are in [`docs/examples`](docs/examples).
 | `figure_pdf_text(path, printed_width)` | a `Result` from the text stored in a figure PDF |
 | `figure_ocr(path, printed_width, dpi=600)` | a `Result` from OCR |
 | `pdf_figure_text(path)` | a `Result` for the figure text of a compiled paper |
-| `reference(journal=None)` | the published sizes, for all papers or one journal |
-| `verdict(result, journal=None, smallest_ok=6.0)` | the summary, the reference and `small`, `ok` or `large` |
+| `paper_figures(path, max_pages=80)` | a dict: each figure of a compiled paper with its text sizes, the figures with no stored text, and the paper's body and caption size |
+| `reference(journal=None, field=None)` | the published sizes, for all papers, one journal or one field |
+| `journals()` | the names of the journals that have their own numbers |
+| `fields()` | the names of the fields |
+| `verdict(result, journal=None, smallest_ok=6.0, field=None)` | the summary, the reference and `small`, `ok` or `large` |
 | `figfont.mpl.set_printed_fonts(fig, printed_width, sizes=None)` | nothing; sets each kind of text to its printed size |
 | `figfont.mpl.scale_fonts(fig, factor)` | nothing; multiplies every font size |
 | `density(fig)` | the width of each panel in text heights, and the share of it that its labels cover |
@@ -519,13 +663,17 @@ All of them are in `figfont` except the two in `figfont.mpl`.
   PDF holds (29 against 45 here), and very short labels are the least certain.
 - **OCR does not measure tilted text.** Text across the page and text on its side are read. Tick
   labels at 30 degrees are skipped.
-- **`pdf_figure_text` reads stored text only.** A figure placed in a paper as an image has no
-  text to read there. Measure it from the figure file with `figure`.
+- **`pdf_figure_text` and `paper_figures` read stored text only.** A figure placed in a paper as
+  an image has no text to read there. `paper_figures` lists it under `no_text`. Measure it from
+  the figure file with `figure`.
+- **`paper_figures` can split a figure.** Panels that sit apart on the page can come back as two
+  or more entries. Their text sizes are right; the `width_in` of each is the width of that part.
 - **`fit` works on matplotlib figures.** It needs a tag to know which panel a letter or title
   placed with `fig.text` belongs to (see [letters](#letters)).
-- **The reference is a sample.** It is 111 papers, and the journals with the most papers are in
-  climate, energy and general science. Journals with fewer than three papers are only counted in
-  the total.
+- **The reference is a sample.** It is 3,363 papers from 132 journals, nearly all open access and
+  published from 2022 to 2025. Two papers in three were read by OCR. Over many papers that
+  evens out, but for one paper an OCR size can be 15 % off. Journals with fewer than ten papers
+  are only counted in the total and in their field.
 
 ## Development
 

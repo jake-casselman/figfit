@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3.0 (2026-11-21)
+
+- The published-paper reference is new: 3,363 papers from 132 journals, where it was 111 papers.
+  The typical paper has 6.5 pt figure text and half of the papers are between 5.5 and 7.4 pt. The
+  old reference gave 8 pt; most of its papers had no figure text that could be read, so much of
+  that number came from other text on the page.
+- `verdict` therefore changes: a figure with 7 pt ticks and 8 pt labels is now `ok`, where it was
+  `small`. The default sizes of `set_printed_fonts` are the same as before.
+- `reference(field=...)`, `verdict(..., field=...)` and `figfont check --field` compare with one
+  of five fields. `fields()` and `journals()` list the names. 90 journals have their own numbers.
+- `reference()` also gives the range for 8 in 10 papers, the small end of the text, the spread
+  inside one paper, the size next to the caption and body text, and the share read by OCR.
+- `paper_figures(path)`: the figures of a paper one at a time, each with its page, printed width
+  and text sizes, with the paper's body and caption size and the figures that have no text.
+- `figfont check --json` prints one key on each line.
+- README: opens with the survey chart. `docs/reference.md` has the numbers for every journal.
+
 ## 0.2.3 (2026-11-21)
 
 - `docs/tour.ipynb`: a notebook that shows a figure as it prints on the journal's page, then

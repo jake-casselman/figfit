@@ -16,6 +16,7 @@ import contextlib
 import io
 import json
 import sys
+import textwrap
 from importlib import resources
 from pathlib import Path
 
@@ -675,51 +676,227 @@ def paper():
                     f"{result.median:.1f} pt. The body text and the caption are not counted."], "paper")
 
 
+def _ref():
+    return json.loads(resources.files("figfont").joinpath("reference.json").read_text())
+
+
+def _range_row(ax, y, v, strong=False):
+    """One row: the middle 80 % of papers (thin), the middle half (thick) and the median (dot)."""
+    ax.plot(v["paper_medians_p10_p90"], [y, y], color=SECOND if strong else BLUES[1], linewidth=1.4,
+            solid_capstyle="round", zorder=2)
+    ax.plot(v["paper_medians_p25_p75"], [y, y], color=INK if strong else BLUES[2], linewidth=5,
+            solid_capstyle="butt", zorder=3)
+    ax.plot(v["median_pt"], y, "o", color="white", markersize=6.5, markeredgecolor=INK if strong else BLUES[3],
+            markeredgewidth=1.6, zorder=4)
+
+
 def reference():
     """reference() and verdict(): where published papers sit."""
-    ref = json.loads(resources.files("figfont").joinpath("reference.json").read_text())
-    journals = sorted(((name, v) for name, v in ref["journals"].items() if v["papers"] >= 3),
-                      key=lambda item: item[1]["median_pt"])
-    rows = [(f"All {ref['all']['papers']} papers", ref["all"])] + journals
-    low, high = ref["all"]["paper_medians_p25_p75"]
-    fig = new((9.4, 5.9), across=SHEET)
-    ax = fig.add_axes([0.37, 0.1, 0.52, 0.76])
-    ax.axvspan(low, high, color=BLUES[0], alpha=0.55, linewidth=0)
+    ref = _ref()
+    everything = ref["all"]
+    low, high = everything["paper_medians_p25_p75"]
+    edges = np.array(ref["histogram"]["edges_pt"])
+    text, ocr = np.array(ref["histogram"]["text"]), np.array(ref["histogram"]["ocr"])
+    fields = sorted(ref["fields"].items(), key=lambda item: item[1]["median_pt"])
+    rows = [(f"All {everything['papers']:,} papers", everything)] + fields
+    lim = (3.5, 11)
+
+    fig = new((9.4, 6.9), across=SHEET)
+    top = fig.add_axes([0.335, 0.47, 0.57, 0.4])
+    for ax in (top,):
+        ax.axvspan(low, high, color=HAIR, alpha=0.6, linewidth=0)
+        ax.axvline(6, color=MUTED, linewidth=1, linestyle=(0, (3, 3)))
+    width = edges[1] - edges[0]
+    top.bar(edges[:-1] + width / 2, text, width - 0.035, color=BLUE)
+    top.bar(edges[:-1] + width / 2, ocr, width - 0.035, bottom=text, color=ORANGE)
+    share = ref["methods"]["text"]["papers"] / everything["papers"]
+    fig.text(0.03, 0.83, "How each paper was read", fontsize=10.5, fontweight="bold", color=INK, va="center")
+    for y, colour, words in ((0.775, BLUE, f"exact sizes: the paper stores\nits figure text ({share * 100:.0f} % of papers)"),
+                             (0.685, ORANGE, f"by OCR: its figures are\nsaved as images ({100 - share * 100:.0f} %)")):
+        fig.patches.append(plt.Rectangle((0.03, y - 0.011), 0.016, 0.022, transform=fig.transFigure, color=colour))
+        fig.text(0.056, y + 0.013, words, fontsize=10, color=SECOND, va="top", linespacing=1.25)
+    top.set_xlim(*lim)
+    top.set_ylabel("Papers", fontsize=11)
+    top.tick_params(labelsize=10, labelbottom=False)
+    top.grid(axis="y", color=HAIR, linewidth=0.8)
+    top.set_axisbelow(True)
+    place = top.get_xaxis_transform()
+    for x, word, align in ((low - 0.12, "small", "right"), ((low + high) / 2, "ok", "center"), (high + 0.12, "large", "left")):
+        top.text(x, 1.02, word, transform=place, ha=align, va="bottom", fontsize=11.5, fontweight="bold",
+                 color=INK if word == "ok" else SECOND)
+    top.text((low + high) / 2, 1.085, "middle half of papers", transform=place, ha="center", va="bottom",
+             fontsize=10, color=SECOND)
+    fig.add_artist(plt.Line2D([0.03, 0.03], [0.515, 0.585], color=MUTED, linewidth=1, linestyle=(0, (3, 3))))
+    fig.text(0.056, 0.588, "6 pt: verdict also says small\nwhen a tenth of a figure's\ntext is under this", fontsize=10,
+             color=SECOND, va="top", linespacing=1.25)
+
+    ax = fig.add_axes([0.335, 0.1, 0.57, 0.31])
+    ax.axvspan(low, high, color=HAIR, alpha=0.6, linewidth=0)
     ax.axvline(6, color=MUTED, linewidth=1, linestyle=(0, (3, 3)))
     for i, (name, v) in enumerate(rows):
-        ax.plot([v["p10_pt"], v["p90_pt"]], [i, i], color=BLUES[1] if i else SECOND, linewidth=2.5,
-                solid_capstyle="round", zorder=2)
-        ax.plot(v["median_pt"], i, "o", color=BLUE if i else INK, markersize=8,
-                markeredgecolor="white", markeredgewidth=1.5, zorder=3)
+        _range_row(ax, i, v, strong=not i)
         if i:
-            ax.text(12.9, i, f"{v['papers']}", va="center", ha="right", fontsize=10, color=SECOND, clip_on=False)
-    ax.text(12.9, len(rows) - 0.25, "papers", va="center", ha="right", fontsize=10, color=SECOND, clip_on=False)
+            ax.text(lim[1] + 0.62, i, f"{v['papers']:,}", va="center", ha="right", fontsize=10, color=SECOND, clip_on=False)
+    ax.text(lim[1] + 0.62, -0.05, "papers", va="center", ha="right", fontsize=10, color=SECOND, clip_on=False)
     ax.set_yticks(range(len(rows)), [name for name, _ in rows], fontsize=10.5)
     ax.get_yticklabels()[0].set_fontweight("bold")
     ax.get_yticklabels()[0].set_color(INK)
     ax.tick_params(axis="y", length=0)
     ax.tick_params(axis="x", labelsize=10)
-    ax.set_xlim(3.5, 12)
-    ax.set_ylim(-1.0, len(rows) - 0.4)
-    ax.set_xlabel("Size of figure text as printed (pt)", fontsize=11)
+    ax.set_xlim(*lim)
+    ax.set_ylim(len(rows) - 0.4, -0.75)
+    ax.set_xlabel("Size of a paper's figure text as printed (pt): the median of its labels", fontsize=11)
     ax.spines["left"].set_visible(False)
     ax.grid(axis="x", color=HAIR, linewidth=0.8)
     ax.set_axisbelow(True)
-    top = ax.get_xaxis_transform()
-    for x, word, align in ((low - 0.12, "small", "right"), ((low + high) / 2, "ok", "center"), (high + 0.12, "large", "left")):
-        ax.text(x, 1.02, word, transform=top, ha=align, va="bottom", fontsize=11.5, fontweight="bold",
-                color=INK if word == "ok" else SECOND)
-    ax.text((low + high) / 2, 1.075, "middle half of papers", transform=top, ha="center", va="bottom",
-            fontsize=10, color=SECOND)
-    ax.text(6, 1.075, "6 pt floor", transform=top, ha="center", va="bottom", fontsize=10, color=SECOND)
-    everything = rows[0][1]
-    ax.annotate("median", (everything["median_pt"], 0), xytext=(0, -9), textcoords="offset points",
-                ha="center", va="top", fontsize=9.5, color=SECOND)
-    ax.annotate("10th to 90th percentile", (everything["p90_pt"], 0), xytext=(8, 0), textcoords="offset points",
-                ha="left", va="center", fontsize=9.5, color=SECOND, annotation_clip=False)
+    ax.annotate("median", (everything["median_pt"], 0), xytext=(0, 8), textcoords="offset points",
+                ha="center", va="bottom", fontsize=9.5, color=SECOND)
+    ax.annotate("8 in 10 papers", (everything["paper_medians_p10_p90"][1], 0), xytext=(8, 0),
+                textcoords="offset points", ha="left", va="center", fontsize=9.5, color=SECOND)
     fig.savefig(OUT / "reference.png")
     plt.close(fig)
     print("wrote reference.png")
+
+
+def journals():
+    """reference(journal=...): every journal that has its own numbers, by field."""
+    ref = _ref()
+    low, high = ref["all"]["paper_medians_p25_p75"]
+    groups = []
+    for field in sorted(ref["fields"], key=lambda f: ref["fields"][f]["median_pt"]):
+        mine = sorted(((n, v) for n, v in ref["journals"].items() if v["field"] == field), key=lambda item: item[1]["median_pt"])
+        if mine:
+            groups.append((field, mine))
+    # two columns of about the same length, a field never split
+    rows = [len(mine) + 2 for _, mine in groups]
+    best = min(range(2 ** len(groups)), key=lambda pick: abs(
+        sum(r for i, r in enumerate(rows) if pick >> i & 1) - sum(r for i, r in enumerate(rows) if not pick >> i & 1)))
+    columns = [[g for i, g in enumerate(groups) if best >> i & 1], [g for i, g in enumerate(groups) if not best >> i & 1]]
+    columns.sort(key=lambda column: -sum(len(mine) + 2 for _, mine in column))
+    depth = max(sum(len(mine) + 2 for _, mine in column) for column in columns)
+    lim = (4, 10.5)
+    fig = new((9.4, 0.55 + 0.205 * depth), across=SHEET)
+    for side, column in enumerate(columns):
+        left, wide = 0.315 + 0.5 * side, 0.14
+        ax = fig.add_axes([left, 0.55 / fig.get_figheight() * 0.8, wide, 1 - 0.75 / fig.get_figheight()])
+        ax.axvspan(low, high, color=HAIR, alpha=0.6, linewidth=0)
+        ax.axvline(6, color=MUTED, linewidth=1, linestyle=(0, (3, 3)))
+        y, ticks, names = 0, [], []
+        for field, mine in column:
+            ax.text((0.01 + 0.5 * side - left) / wide, y, field, transform=ax.get_yaxis_transform(), ha="left", va="center", fontsize=10.5,
+                    fontweight="bold", color=INK)
+            ax.text(1.04, y, "papers", transform=ax.get_yaxis_transform(), ha="left", va="center", fontsize=8.5, color=MUTED)
+            y += 1
+            for name, v in mine:
+                _range_row(ax, y, v)
+                ax.text(1.04, y, f"{v['papers']}", transform=ax.get_yaxis_transform(), ha="left", va="center",
+                        fontsize=8.5, color=SECOND)
+                ticks.append(y)
+                names.append(textwrap.fill(name, 40))
+                y += 1
+            y += 1
+        ax.set_yticks(ticks, names, fontsize=8.8, linespacing=0.95)
+        ax.tick_params(axis="y", length=0)
+        ax.tick_params(axis="x", labelsize=9)
+        ax.set_xlim(*lim)
+        ax.set_xticks([4, 6, 8, 10])
+        ax.set_ylim(depth - 1.4, -0.7)
+        ax.set_xlabel("Figure text as printed (pt)", fontsize=9.5)
+        ax.spines["left"].set_visible(False)
+        ax.grid(axis="x", color=HAIR, linewidth=0.8)
+        ax.set_axisbelow(True)
+    fig.savefig(OUT / "journals.png")
+    plt.close(fig)
+    print("wrote journals.png")
+
+
+def small_text():
+    """The small end, and figure text against the caption."""
+    ref = _ref()
+    fields = [(name, v) for name, v in ref["fields"].items() if "small_text" in v]
+    rows = [("All papers", ref["all"])] + sorted(fields, key=lambda item: -item[1]["small_text"]["share_with_text_under_6pt"])
+    fig = new((9.4, 3.7), across=SHEET)
+    ax = fig.add_axes([0.235, 0.17, 0.26, 0.62])
+    for i, (name, v) in enumerate(rows):
+        six, five = v["small_text"]["share_with_text_under_6pt"] * 100, v["small_text"]["share_with_text_under_5pt"] * 100
+        ax.barh(i, six, 0.62, color=BLUES[1], label="under 6 pt" if not i else None)
+        ax.barh(i, five, 0.62, color=BLUES[3], label="under 5 pt" if not i else None)
+        ax.text(six + 2, i, f"{six:.0f} %", va="center", ha="left", fontsize=9.5, color=SECOND)
+        if five >= 16:
+            ax.text(five - 1.5, i, f"{five:.0f} %", va="center", ha="right", fontsize=9.5, color="white")
+    ax.set_yticks(range(len(rows)), [name for name, _ in rows], fontsize=10)
+    ax.get_yticklabels()[0].set_fontweight("bold")
+    ax.tick_params(axis="y", length=0)
+    ax.tick_params(axis="x", labelsize=9.5)
+    ax.set_xlim(0, 100)
+    ax.set_ylim(len(rows) - 0.4, -0.6)
+    ax.set_xlabel("Papers (%)", fontsize=10.5)
+    ax.spines["left"].set_visible(False)
+    ax.grid(axis="x", color=HAIR, linewidth=0.8)
+    ax.set_axisbelow(True)
+    ax.legend(loc="lower right", bbox_to_anchor=(1, 1), ncols=2, fontsize=9.5, handlelength=1.1, borderaxespad=0.1,
+              columnspacing=1.2, frameon=False)
+    fig.text(0.02, 0.97, "Papers in which a tenth of the figure text is smaller than", fontsize=11, fontweight="bold",
+             color=INK, va="top")
+    fig.text(0.02, 0.895, f"{ref['all']['small_text']['papers']:,} papers with exact sizes", fontsize=9.5, color=SECOND, va="top")
+
+    ax = fig.add_axes([0.6, 0.17, 0.375, 0.62])
+    edges = np.array(ref["caption_ratio_histogram"]["edges"])
+    count = np.array(ref["caption_ratio_histogram"]["papers"])
+    width = edges[1] - edges[0]
+    ax.bar(edges[:-1] + width / 2, count, width - 0.008, color=BLUES[2])
+    ax.axvline(1, color=INK, linewidth=1)
+    ax.text(1.02, 0.97, "same size as\nthe caption", transform=ax.get_xaxis_transform(), ha="left", va="top",
+            fontsize=9.5, color=SECOND, linespacing=1.15)
+    middle = ref["all"]["relative_to_caption"]
+    ax.axvline(middle, color=INK, linewidth=1, linestyle=(0, (3, 2)))
+    ax.text(middle - 0.02, 0.97, f"typical\npaper: {middle:.2f}", transform=ax.get_xaxis_transform(), ha="right", va="top",
+            fontsize=9.5, color=SECOND, linespacing=1.15)
+    ax.set_xlim(0.4, 1.6)
+    ax.set_ylim(0, count.max() * 1.18)
+    ax.set_xlabel("Figure text size ÷ caption size", fontsize=10.5)
+    ax.set_ylabel("Papers", fontsize=10.5)
+    ax.tick_params(labelsize=9.5)
+    ax.grid(axis="y", color=HAIR, linewidth=0.8)
+    ax.set_axisbelow(True)
+    fig.text(0.545, 0.97, "Figure text against the paper's own caption", fontsize=11, fontweight="bold", color=INK, va="top")
+    fig.text(0.545, 0.895, "The caption is usually a point or two below the body text", fontsize=9.5, color=SECOND, va="top")
+    fig.savefig(OUT / "small_text.png")
+    plt.close(fig)
+    print("wrote small_text.png")
+
+
+def reference_table():
+    """docs/reference.md: the numbers for every field and journal, as a table."""
+    ref = _ref()
+    everything = ref["all"]
+
+    def row(name, v):
+        low, high = v["paper_medians_p25_p75"]
+        wide_low, wide_high = v["paper_medians_p10_p90"]
+        return (f"| {name} | {v['papers']:,} | {v['median_pt']:.1f} | {low:.1f} to {high:.1f} | "
+                f"{wide_low:.1f} to {wide_high:.1f} | {v['read_by_ocr'] * 100:.0f} % |")
+
+    head = ["| | Papers | Median (pt) | Middle half of papers (pt) | 8 in 10 papers (pt) | Read by OCR |",
+            "|---|---:|---:|---:|---:|---:|"]
+    lines = ["# Figure text in published papers", "",
+             f"The size of figure text as printed, in {everything['papers']:,} journal articles from "
+             f"{everything['journals']} journals. Each paper counts once, with the median size of the text in its",
+             "figures. This page is written by `docs/make_images.py reference_table` from",
+             "[`figfont/reference.json`](../figfont/reference.json); the [README](../README.md#3-compare-with-published-papers)",
+             "says how the papers were measured.", "",
+             "*Read by OCR* is the share of a row's papers whose figures hold no stored text, so their sizes were",
+             "read from the picture. Those sizes are close, not exact.", "",
+             "## All papers and fields", "", *head, row("**All papers**", everything)]
+    lines += [row(name, v) for name, v in sorted(ref["fields"].items(), key=lambda item: item[1]["median_pt"])]
+    for field in sorted(ref["fields"]):
+        mine = sorted((n for n, v in ref["journals"].items() if v["field"] == field), key=str.lower)
+        if mine:
+            lines += ["", f"## {field}", "", *head, *(row(name, ref["journals"][name]) for name in mine)]
+    lines += ["", f"A journal needs {min(v['papers'] for v in ref['journals'].values())} or more measured papers "
+                  "to have its own row. Papers from other journals count in their field and in the total.", ""]
+    (OUT.parent / "reference.md").write_text("\n".join(lines))
+    print("wrote reference.md")
 
 
 def scaling():
@@ -794,7 +971,7 @@ def scaling():
     print("wrote scale.png")
 
 
-ALL = {"hero": hero, "scale": scaling, "measure": measuring, "paper": paper, "reference": reference,
+ALL = {"hero": hero, "scale": scaling, "measure": measuring, "paper": paper, "reference": reference, "journals": journals, "small_text": small_text, "reference_table": reference_table,
        "set_printed_fonts": set_fonts, "suggest_size": suggest, "overlaps": overlaps,
        "cover": cover, "wrap": wrap, "pads": pads, "letters": letters, "ticks": ticks,
        "inside": inside, "repel": repel, "legends": legends, "space": space, "notes": notes}

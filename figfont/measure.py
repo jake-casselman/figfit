@@ -48,39 +48,16 @@ class Result:
 # ----------------------------------------------------------------------------- text in PDFs
 
 def pdf_figure_text(path: str | os.PathLike) -> Result:
-    """Sizes of text that sits inside figures of a PDF paper (vector text only).
+    """Sizes of the text inside the figures of a paper's PDF, as printed (stored text only).
 
-    Figure text is text in a font other than the paper's body font, inside a region
-    that also holds an image or vector drawings.
+    The paper's own typesetting (body text, captions, tables, headings) is left out; see
+    `figfont.paper_figures` for how figures are found, and for each figure on its own.
+    A figure saved as an image stores no text and adds nothing here.
     """
-    path = os.fspath(path)
-    doc = pymupdf.open(path)
-    body = collections.Counter()
-    for page in doc:
-        for block in page.get_text("dict")["blocks"]:
-            for line in block.get("lines", []):
-                for span in line["spans"]:
-                    body[span["font"]] += len(span["text"])
-    body_font = body.most_common(1)[0][0] if body else None
-    sizes = []
-    for page in doc:
-        regions = [pymupdf.Rect(i["bbox"]) for i in page.get_image_info()]
-        drawings = [d["rect"] for d in page.get_drawings() if d["rect"].width * d["rect"].height > 4]
-        if drawings:
-            box = pymupdf.Rect(drawings[0])
-            for d in drawings[1:]:
-                box |= d
-            if box.height > 100:
-                regions.append(box)
-        for block in page.get_text("dict")["blocks"]:
-            for line in block.get("lines", []):
-                for span in line["spans"]:
-                    if not span["text"].strip() or span["font"] == body_font:
-                        continue
-                    box = pymupdf.Rect(span["bbox"])  # a label at the edge of a figure sticks a hair out of it
-                    if any(r.contains((box.tl + box.br) / 2) for r in regions):
-                        sizes.append(span["size"])
-    return Result(os.path.basename(path), "text", sizes)
+    from .papers import paper_figures
+
+    found = paper_figures(path)
+    return Result(os.path.basename(os.fspath(path)), "text", [s for f in found["figures"] for s in f["sizes"]])
 
 
 def figure_pdf_text(path: str | os.PathLike, printed_width: float) -> Result:

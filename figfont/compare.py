@@ -7,18 +7,41 @@ from importlib import resources
 from .measure import Result
 
 
-def reference(journal: str | None = None) -> dict:
-    ref = json.loads(resources.files("figfont").joinpath("reference.json").read_text())
-    return ref["journals"].get(journal, ref["all"]) if journal else ref["all"]
+def _load() -> dict:
+    return json.loads(resources.files("figfont").joinpath("reference.json").read_text())
 
 
-def verdict(result: Result, journal: str | None = None, smallest_ok: float = 6.0) -> dict:
+def reference(journal: str | None = None, field: str | None = None) -> dict:
+    """Figure text sizes in published papers: all of them, one journal, or one field.
+
+    A journal that has no entry of its own falls back to all papers. `journals()` and
+    `fields()` list the names.
+    """
+    ref = _load()
+    if journal:
+        return ref["journals"].get(journal, ref["all"])
+    if field:
+        return ref["fields"][field]
+    return ref["all"]
+
+
+def journals() -> list[str]:
+    """The journals that have their own entry in the reference."""
+    return sorted(_load()["journals"])
+
+
+def fields() -> list[str]:
+    """The fields that have their own entry in the reference."""
+    return sorted(_load()["fields"])
+
+
+def verdict(result: Result, journal: str | None = None, smallest_ok: float = 6.0, field: str | None = None) -> dict:
     """ok / small / large for one figure, against the middle half of published papers.
 
     A figure is "small" if its median prints below the 25th percentile of paper medians,
     or a tenth of its text below `smallest_ok` pt; "large" above the 75th percentile.
     """
-    ref = reference(journal)
+    ref = reference(journal, field)
     low, high = ref["paper_medians_p25_p75"]
     out = result.summary() | {"reference_median_pt": ref["median_pt"], "reference_range_pt": [low, high]}
     if not result.sizes:
