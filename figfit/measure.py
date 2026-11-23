@@ -51,7 +51,7 @@ def pdf_figure_text(path: str | os.PathLike) -> Result:
     """Sizes of the text inside the figures of a paper's PDF, as printed (stored text only).
 
     The paper's own typesetting (body text, captions, tables, headings) is left out; see
-    `figfont.paper_figures` for how figures are found, and for each figure on its own.
+    `figfit.paper_figures` for how figures are found, and for each figure on its own.
     A figure saved as an image stores no text and adds nothing here.
     """
     from .papers import paper_figures

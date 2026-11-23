@@ -1,4 +1,4 @@
-from figfont import measure
+from figfit import measure
 
 
 def test_upright_lines_are_kept_and_text_on_its_side_is_not():

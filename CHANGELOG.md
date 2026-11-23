@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0 (2026-11-23)
+
+- **Renamed figfont to figfit**, because it now does more than font sizes: `pip install figfit`,
+  `import figfit`, the `figfit` command. The repository moved to github.com/jake-casselman/figfit.
+- **Colour-blind check.** `colour_problems(fig)` reports colour pairs that name things (lines,
+  points, bars, areas, legend entries) and colour maps that protan, deutan or tritan readers
+  can't tell apart, with pairs that also differ by line style or marker as notes only.
+  `colormap_problems`, `image_problems` for PNG and PDF files, `colourblind_sheet` for a picture
+  of the figure as each reader sees it, and `figfit colours FILE --sheet` on the command line.
+
 ## 0.3.0 (2026-11-21)
 
 - The published-paper reference is new: 3,363 papers from 132 journals, where it was 111 papers.
@@ -8,13 +18,13 @@
   that number came from other text on the page.
 - `verdict` therefore changes: a figure with 7 pt ticks and 8 pt labels is now `ok`, where it was
   `small`. The default sizes of `set_printed_fonts` are the same as before.
-- `reference(field=...)`, `verdict(..., field=...)` and `figfont check --field` compare with one
+- `reference(field=...)`, `verdict(..., field=...)` and `figfit check --field` compare with one
   of five fields. `fields()` and `journals()` list the names. 90 journals have their own numbers.
 - `reference()` also gives the range for 8 in 10 papers, the small end of the text, the spread
   inside one paper, the size next to the caption and body text, and the share read by OCR.
 - `paper_figures(path)`: the figures of a paper one at a time, each with its page, printed width
   and text sizes, with the paper's body and caption size and the figures that have no text.
-- `figfont check --json` prints one key on each line.
+- `figfit check --json` prints one key on each line.
 - README: opens with the survey chart. `docs/reference.md` has the numbers for every journal.
 
 ## 0.2.3 (2026-11-21)
@@ -61,4 +71,4 @@
   `stitched_width`).
 - `set_printed_fonts` and `scale_fonts` for matplotlib figures.
 - `fit`, `overlaps` and `report_overlaps` find and fix text that collides.
-- The `figfont` command: `check`, `paper` and `scale`.
+- The `figfit` command: `check`, `paper` and `scale`.

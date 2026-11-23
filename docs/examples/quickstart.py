@@ -8,8 +8,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-import figfont
-from figfont.mpl import set_printed_fonts
+import figfit
+from figfit.mpl import set_printed_fonts
 
 PAGE = 5.15  # the width the figure gets on the page, inches
 
@@ -32,8 +32,8 @@ c.set_ylabel("Hour of day")
 for letter, ax in zip("abc", (a, b, c)):
     ax.set_title(letter, loc="left", fontweight="bold")
 
-print("as drawn, 10 pt prints at", round(figfont.printed_pt(10, 13, PAGE), 2), "pt")
+print("as drawn, 10 pt prints at", round(figfit.printed_pt(10, 13, PAGE), 2), "pt")
 set_printed_fonts(fig, PAGE)         # ticks 7 pt, everything else 8 pt, as printed
-figfont.fit(fig, "fig01")            # clear the collisions the bigger text made
+figfit.fit(fig, "fig01")            # clear the collisions the bigger text made
 fig.savefig("fig01.pdf")
-print(figfont.verdict(figfont.figure("fig01.pdf", PAGE)))
+print(figfit.verdict(figfit.figure("fig01.pdf", PAGE)))

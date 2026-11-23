@@ -2,8 +2,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-import figfont.mpl
-from figfont import scale
+import figfit.mpl
+from figfit import scale
 
 
 def test_every_kind_of_text_gets_its_printed_size():
@@ -16,7 +16,7 @@ def test_every_kind_of_text_gets_its_printed_size():
     ax.legend(title="key")
     shared = fig.legend(handles=[line], loc="upper right")
     letter = fig.text(0.01, 0.95, "a")
-    figfont.mpl.set_printed_fonts(fig, 5.0, {"tick": 6, "title": 9})
+    figfit.mpl.set_printed_fonts(fig, 5.0, {"tick": 6, "title": 9})
     printed = lambda text: scale.printed_pt(text.get_fontsize(), 10, 5.0)
     near = lambda text, points: abs(printed(text) - points) < 1e-9
     assert near(ax.get_xticklabels()[0], 6)
@@ -29,5 +29,5 @@ def test_every_kind_of_text_gets_its_printed_size():
 def test_scale_fonts_multiplies_everything():
     fig, ax = plt.subplots()
     ax.set_xlabel("x", fontsize=10)
-    figfont.mpl.scale_fonts(fig, 1.5)
+    figfit.mpl.scale_fonts(fig, 1.5)
     assert ax.xaxis.label.get_fontsize() == 15

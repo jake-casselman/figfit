@@ -1,12 +1,12 @@
 """Draw every image in the README.
 
-Each picture is made by calling figfont on a real matplotlib figure, so it
+Each picture is made by calling figfit on a real matplotlib figure, so it
 shows what the code does today. Run it again after changing the package:
 
     python docs/make_images.py              # all of them
     python docs/make_images.py hero ticks   # only these
 
-Needs figfont installed (pip install -e ".[mac]"). The map picture needs
+Needs figfit installed (pip install -e ".[mac]"). The map picture needs
 cartopy and the measuring picture needs OCR; each is skipped with a message
 when its package is missing.
 """
@@ -33,9 +33,9 @@ from matplotlib.text import Text
 from matplotlib.transforms import Bbox
 from PIL import Image, ImageDraw, ImageFont
 
-import figfont
-import figfont.mpl
-from figfont import measure, scale
+import figfit
+import figfit.mpl
+from figfit import measure, scale
 
 HERE = Path(__file__).parent
 OUT = HERE / "images"
@@ -118,10 +118,10 @@ def snap(fig, marks=(), names=(), edge=False) -> Image.Image:
 
 
 def collisions(fig, edges=False):
-    """One box, and what is wrong, for each text that figfont.overlaps reports."""
+    """One box, and what is wrong, for each text that figfit.overlaps reports."""
     renderer = fig.canvas.get_renderer()
     found = {}
-    for a, b, why in figfont.overlaps(fig, edges):
+    for a, b, why in figfit.overlaps(fig, edges):
         boxes, whys = found.setdefault(id(a), ([a.get_window_extent(renderer)], []))
         if isinstance(b, Text):
             boxes.append(b.get_window_extent(renderer))
@@ -162,7 +162,7 @@ def run_fit(fig, name):
     """fit() with its printed lines kept, so the build log says which step did the work."""
     out = io.StringIO()
     with contextlib.redirect_stdout(out):
-        figfont.fit(fig, name)
+        figfit.fit(fig, name)
     lines = [line for line in out.getvalue().splitlines() if not line.startswith("TEXT DENSITY")]
     print("   " + " | ".join(lines))
     return lines
@@ -372,7 +372,7 @@ def overlaps():
     picture = snap(fig, marks, names, edge=True)
     out = io.StringIO()
     with contextlib.redirect_stdout(out):
-        figfont.report_overlaps(fig, "peaks.png", edges=True)
+        figfit.report_overlaps(fig, "peaks.png", edges=True)
     print("   " + out.getvalue().replace("\n", "\n   "))
     (OUT / "overlaps.txt").write_text(out.getvalue())
     tiles([picture], ["overlaps(fig, edges=True)|what it finds, marked in red. The dashed line is the edge of the figure."],
@@ -436,7 +436,7 @@ def _printed(fig, name):
     """Save the figure as a PDF and read back what its text prints at."""
     EXAMPLES.mkdir(parents=True, exist_ok=True)
     fig.savefig(EXAMPLES / name)
-    return figfont.figure_pdf_text(str(EXAMPLES / name), PAGE)
+    return figfit.figure_pdf_text(str(EXAMPLES / name), PAGE)
 
 
 def hero():
@@ -444,7 +444,7 @@ def hero():
     drawn = _printed(fig, "before.pdf")
     fig.savefig(EXAMPLES / "before.png", dpi=300)
     first = snap(fig)
-    figfont.mpl.set_printed_fonts(fig, PAGE)
+    figfit.mpl.set_printed_fonts(fig, PAGE)
     fig.canvas.draw()
     marks, _ = collisions(fig)
     second = snap(fig, marks)
@@ -503,8 +503,8 @@ def set_fonts():
     first = snap(fig)
     plt.close(fig)
     fig, ax, legend, source = build()
-    sizes = figfont.mpl.SIZES
-    figfont.mpl.set_printed_fonts(fig, page)
+    sizes = figfit.mpl.SIZES
+    figfit.mpl.set_printed_fonts(fig, page)
     run_fit(fig, "set_printed_fonts")
     second = snap(fig).convert("RGBA")
     renderer = fig.canvas.get_renderer()
@@ -557,16 +557,16 @@ def suggest():
 
     fig = grid()
     fig.canvas.draw()
-    narrow = figfont.density(fig)["ems_min"]
-    size = figfont.suggest_size(fig, printed_pt=8)
+    narrow = figfit.density(fig)["ems_min"]
+    size = figfit.suggest_size(fig, printed_pt=8)
     marks, _ = collisions(fig)
     first = snap(fig, marks)
     plt.close(fig)
     fig = grid()
-    figfont.mpl.scale_fonts(fig, size / 8)
+    figfit.mpl.scale_fonts(fig, size / 8)
     fig.canvas.draw()
-    after = figfont.density(fig)["ems_min"]
-    left = len(figfont.overlaps(fig))
+    after = figfit.density(fig)["ems_min"]
+    left = len(figfit.overlaps(fig))
     second = snap(fig)
     plt.close(fig)
     print(f"   narrowest panel {narrow:.1f} text heights at 8 pt ({len(marks)} collisions) -> "
@@ -624,8 +624,8 @@ def measuring():
         pen.rectangle([x, y, x + wide, y + high], fill=TAG + (255,))
         pen.text((x + 5, y + 1), tag, font=label, fill="white")
     image = Image.alpha_composite(image, layer).convert("RGB")
-    ocr = figfont.figure_ocr(str(path), PAGE)
-    exact = figfont.figure_pdf_text(str(EXAMPLES / "after.pdf"), PAGE)
+    ocr = figfit.figure_ocr(str(path), PAGE)
+    exact = figfit.figure_pdf_text(str(EXAMPLES / "after.pdf"), PAGE)
     print(f"   OCR {ocr.summary()}; exact from the PDF {exact.summary()}")
     tiles([image], [f"figure_ocr(\"after.png\", {PAGE})|every line it reads, with the size it prints at. "
                     f"Median {ocr.median:.1f} pt; the PDF of the same figure says {exact.median:.1f} pt."], "measure")
@@ -652,7 +652,7 @@ def paper():
                         fontname="tibo", fontsize=9)
     page.insert_textbox(pymupdf.Rect(left, 150 + high, left + wide, 376), words * 2, **body)
     doc.save(EXAMPLES / "paper.pdf", garbage=3, deflate=True)
-    result = figfont.pdf_figure_text(str(EXAMPLES / "paper.pdf"))
+    result = figfit.pdf_figure_text(str(EXAMPLES / "paper.pdf"))
     print(f"   {result.summary()}")
 
     page = pymupdf.open(EXAMPLES / "paper.pdf")[0]
@@ -677,7 +677,7 @@ def paper():
 
 
 def _ref():
-    return json.loads(resources.files("figfont").joinpath("reference.json").read_text())
+    return json.loads(resources.files("figfit").joinpath("reference.json").read_text())
 
 
 def _range_row(ax, y, v, strong=False):
@@ -883,7 +883,7 @@ def reference_table():
              f"The size of figure text as printed, in {everything['papers']:,} journal articles from "
              f"{everything['journals']} journals. Each paper counts once, with the median size of the text in its",
              "figures. This page is written by `docs/make_images.py reference_table` from",
-             "[`figfont/reference.json`](../figfont/reference.json); the [README](../README.md#3-compare-with-published-papers)",
+             "[`figfit/reference.json`](../figfit/reference.json); the [README](../README.md#3-compare-with-published-papers)",
              "says how the papers were measured.", "",
              "*Read by OCR* is the share of a row's papers whose figures hold no stored text, so their sizes were",
              "read from the picture. Those sizes are close, not exact.", "",
@@ -971,10 +971,45 @@ def scaling():
     print("wrote scale.png")
 
 
+def colourblind():
+    """colour_problems: the same figure for normal and green-blind readers, before and after."""
+    from figfit import colour
+    rng = np.random.default_rng(3)
+    x = np.linspace(0, 10, 60)
+
+    def build(lines, cmap):
+        fig, (a, b) = plt.subplots(1, 2, figsize=TWO, layout="constrained")
+        for (name, c, style), shift in zip(lines, (0, 1.2, 2.4)):
+            a.plot(x, np.sin(x / 2) + shift + 0.05 * rng.standard_normal(x.size), style, color=c, label=name, lw=1.6)
+        a.legend(fontsize=8, loc="upper right")
+        a.set(xlabel="Year", ylabel="Anomaly")
+        mesh = b.pcolormesh(np.add.outer(np.sin(np.linspace(0, 3, 30)), np.cos(np.linspace(0, 4, 40))), cmap=cmap,
+                            vmin=-2, vmax=2)
+        fig.colorbar(mesh, ax=b, shrink=0.8)
+        b.set(xticks=[], yticks=[])
+        return fig
+
+    before = build([("observed", "#d62728", "-"), ("model", "#2ca02c", "-"), ("reanalysis", "#9467bd", "-")], "RdYlGn")
+    after = build([("observed", BLUE, "-"), ("model", ORANGE, "--"), ("reanalysis", INK, ":")], "RdBu_r")
+    before.savefig(EXAMPLES / "colours.png", dpi=200)  # for the command-line example
+    for p in colour.colour_problems(before):
+        print("  before:", p)
+    print("  after:", [str(p) for p in colour.colour_problems(after)] or "no problems")
+    pictures = []
+    for fig in (before, after):
+        image = np.asarray(snap(fig).convert("RGB"), dtype=float) / 255
+        pictures += [Image.fromarray((image * 255).astype(np.uint8)),
+                     Image.fromarray((colour.simulate(image, "deutan") * 255).round().astype(np.uint8))]
+        plt.close(fig)
+    tiles(pictures, ["Before|normal vision", "Before|green-blind (deutan)",
+                     "After|normal vision", "After|green-blind (deutan)"], "colourblind", columns=2)
+
+
 ALL = {"hero": hero, "scale": scaling, "measure": measuring, "paper": paper, "reference": reference, "journals": journals, "small_text": small_text, "reference_table": reference_table,
        "set_printed_fonts": set_fonts, "suggest_size": suggest, "overlaps": overlaps,
        "cover": cover, "wrap": wrap, "pads": pads, "letters": letters, "ticks": ticks,
-       "inside": inside, "repel": repel, "legends": legends, "space": space, "notes": notes}
+       "inside": inside, "repel": repel, "legends": legends, "space": space, "notes": notes,
+       "colourblind": colourblind}
 
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)

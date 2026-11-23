@@ -8,7 +8,7 @@ from .measure import Result
 
 
 def _load() -> dict:
-    return json.loads(resources.files("figfont").joinpath("reference.json").read_text())
+    return json.loads(resources.files("figfit").joinpath("reference.json").read_text())
 
 
 def reference(journal: str | None = None, field: str | None = None) -> dict:

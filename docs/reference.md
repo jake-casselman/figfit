@@ -2,7 +2,7 @@
 
 The size of figure text as printed, in 3,363 journal articles from 132 journals. Each paper counts once, with the median size of the text in its
 figures. This page is written by `docs/make_images.py reference_table` from
-[`figfont/reference.json`](../figfont/reference.json); the [README](../README.md#3-compare-with-published-papers)
+[`figfit/reference.json`](../figfit/reference.json); the [README](../README.md#3-compare-with-published-papers)
 says how the papers were measured.
 
 *Read by OCR* is the share of a row's papers whose figures hold no stored text, so their sizes were

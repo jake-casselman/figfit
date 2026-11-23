@@ -6,8 +6,8 @@ import numpy as np
 import pymupdf
 import pytest
 
-from figfont import paper_figures
-from figfont.papers import _groups
+from figfit import paper_figures
+from figfit.papers import _groups
 
 
 def _plot(path, fontsize=8, as_image=False):

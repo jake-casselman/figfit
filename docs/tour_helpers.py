@@ -1,11 +1,11 @@
-"""Pictures for docs/tour.ipynb. They only draw; none of this is part of figfont."""
+"""Pictures for docs/tour.ipynb. They only draw; none of this is part of figfit."""
 import io
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.text import Text
 
-import figfont
+import figfit
 
 BODY = ("This is the main text of the paper, set at 10 pt. The figure below sits in the\n"
         "same column, at the width the journal gives it. Compare the two sizes of text.")
@@ -33,7 +33,7 @@ def on_the_page(fig, printed_width, label=""):
 
 def against_papers(results):
     """Each figure's text sizes as a bar, over the sizes found in published papers."""
-    papers = figfont.reference()
+    papers = figfit.reference()
     plot, ax = plt.subplots(figsize=(8, 1.3 + 0.45 * len(results)), layout="constrained")
     ax.axvspan(*papers["paper_medians_p25_p75"], color="0.88", label="where half of published papers sit")
     ax.axvline(papers["median_pt"], color="0.4", linewidth=1, label="typical published paper")

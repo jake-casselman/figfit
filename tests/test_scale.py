@@ -1,4 +1,4 @@
-from figfont import scale
+from figfit import scale
 
 
 def test_round_trip():

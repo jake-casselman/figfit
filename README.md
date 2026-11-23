@@ -1,13 +1,16 @@
-<h1 align="center">figfont</h1>
+<h1 align="center">figfit</h1>
 
 <p align="center">
-  <b>Figure text that prints at the size you meant.</b><br>
+  <b>Figures that read well in print.</b><br>
   Measure the text in a figure as it prints, compare it with published papers,<br>
-  set the sizes it should have, and clear the collisions that bigger text makes.
+  set the sizes it should have, clear the collisions that bigger text makes,<br>
+  and check that colour-blind readers can tell its colours apart.
 </p>
 
+<p align="center"><sub>Called figfont up to version 0.3.0.</sub></p>
+
 <p align="center">
-  <img alt="version 0.3.0" src="https://img.shields.io/badge/version-0.3.0-2a78d6">
+  <img alt="version 0.4.0" src="https://img.shields.io/badge/version-0.4.0-2a78d6">
   <img alt="Python 3.10 or later" src="https://img.shields.io/badge/python-3.10%2B-2a78d6">
   <img alt="works with matplotlib" src="https://img.shields.io/badge/works%20with-matplotlib-2a78d6">
   <img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-1baf7a">
@@ -16,7 +19,7 @@
 <h2 align="center">How big is the text in a published figure? About 6.5 pt.</h2>
 
 <p align="center">
-  figfont measured the figures of <b>3,363 journal articles from 132 journals</b>, as they print on the page.<br>
+  figfit measured the figures of <b>3,363 journal articles from 132 journals</b>, as they print on the page.<br>
   Half of the papers have figure text between 5.5 and 7.4 pt, and the five fields are within half a point of each other.<br>
   Only one paper in ten is under 5 pt. A figure drawn wide and shrunk to fit a column often is.
 </p>
@@ -58,7 +61,7 @@ its text shrinks with it. Text set at 10 pt prints at 4 pt. Figures in published
 about 6.5 pt, and nine in ten papers are at 5 pt or more.
 
 Making the text bigger fixes the size and breaks the layout. Labels land on each other, on the
-next panel, or run off the figure. figfont does both jobs:
+next panel, or run off the figure. figfit does both jobs, and checks the colours too:
 
 | | Job | Functions |
 |---|---|---|
@@ -69,6 +72,7 @@ next panel, or run off the figure. figfont does both jobs:
 | 5 | [Pick a size for small panels](#5-pick-a-size-for-small-panels) | `suggest_size` `density` |
 | 6 | [Find colliding text](#6-find-colliding-text) | `overlaps` `report_overlaps` |
 | 7 | [Fix colliding text](#7-fix-colliding-text) with the smallest change that works | `fit` `clear_notes` |
+| 8 | [Check colours for colour-blind readers](#8-check-colours-for-colour-blind-readers) | `colour_problems` `colormap_problems` `image_problems` `colourblind_sheet` |
 
 There is also a [command line](#command-line) for checking figure files and compiled papers.
 
@@ -76,13 +80,13 @@ There is also a [command line](#command-line) for checking figure files and comp
 
 ```bash
 # macOS, with OCR by Apple Vision
-pip install "figfont[mac] @ git+https://github.com/jake-casselman/figfont"
+pip install "figfit[mac] @ git+https://github.com/jake-casselman/figfit"
 
 # Linux and Windows, with OCR by tesseract (the tesseract command must be installed)
-pip install "figfont[tesseract] @ git+https://github.com/jake-casselman/figfont"
+pip install "figfit[tesseract] @ git+https://github.com/jake-casselman/figfit"
 
 # no OCR: vector PDFs and matplotlib figures only
-pip install git+https://github.com/jake-casselman/figfont
+pip install git+https://github.com/jake-casselman/figfit
 ```
 
 Python 3.10 or later. It installs matplotlib, numpy, pillow and pymupdf. OCR is only used to
@@ -91,13 +95,13 @@ measure images (PNG, JPEG) and PDFs whose text is stored as shapes.
 ## Quick start
 
 ```python
-import figfont
-from figfont.mpl import set_printed_fonts
+import figfit
+from figfit.mpl import set_printed_fonts
 
 fig = ...                                    # any matplotlib figure, drawn as usual
 
 set_printed_fonts(fig, printed_width=5.15)   # ticks 7 pt, everything else 8 pt, as printed
-figfont.fit(fig, "fig01")                    # clear the collisions the bigger text made
+figfit.fit(fig, "fig01")                    # clear the collisions the bigger text made
 fig.savefig("fig01.pdf")
 ```
 
@@ -111,7 +115,7 @@ TEXT OK fig01: no overlaps
 Then measure the file the way a reader will see it:
 
 ```python
-figfont.figure("fig01.pdf", printed_width=5.15).summary()
+figfit.figure("fig01.pdf", printed_width=5.15).summary()
 # {'name': 'fig01.pdf', 'method': 'text', 'n': 43, 'median_pt': 7.0, 'p10_pt': 7.0, 'p90_pt': 8.0}
 ```
 
@@ -151,7 +155,7 @@ The width that counts is the width of the whole stitched figure, not of one pane
 prints when the figure is placed `printed_width` inches wide.
 
 ```python
-result = figfont.figure("after.pdf", printed_width=5.15)
+result = figfit.figure("after.pdf", printed_width=5.15)
 result.median            # 7.0
 result.percentile(10)    # 7.0
 result.summary()
@@ -190,7 +194,7 @@ The body text and the captions are left out.
 found in the paper:
 
 ```python
-found = figfont.paper_figures("paper.pdf")
+found = figfit.paper_figures("paper.pdf")
 found["body_pt"], found["caption_pt"]     # (10.0, 9.0): the size of the paper's main text and captions
 for f in found["figures"]:                # one entry for each figure that stores its text
     f["page"], f["width_in"]              # (1, 5.16): the page, and the width the figure prints at
@@ -215,7 +219,7 @@ Every other measuring function returns a `Result`:
 
 ## 3. Compare with published papers
 
-figfont ships with the printed size of figure text in 3,363 journal articles from 132 journals,
+figfit ships with the printed size of figure text in 3,363 journal articles from 132 journals,
 nearly all published from 2022 to 2025. Each paper counts once, with the median size of the labels
 in its figures.
 
@@ -246,7 +250,7 @@ The same numbers as a table: [`docs/reference.md`](docs/reference.md).
 ### Ask for the numbers
 
 ```python
-figfont.reference()
+figfit.reference()
 # {'papers': 3363, 'median_pt': 6.5, 'p10_pt': 4.39, 'p90_pt': 9.0,
 #  'paper_medians_p25_p75': [5.54, 7.35], 'paper_medians_p10_p90': [5.03, 8.37], 'read_by_ocr': 0.65,
 #  'small_text': {'papers': 1169, 'typical_smallest_pt': 5.5,
@@ -254,10 +258,10 @@ figfont.reference()
 #  'within_a_paper': {'papers': 1169, 'small_end_pt': 5.5, 'typical_pt': 6.5, 'large_end_pt': 7.0},
 #  'relative_to_caption': 0.8, 'relative_to_body': 0.71, 'journals': 132}
 
-figfont.reference("Nature")["median_pt"]                                 # 6.0
-figfont.reference(field="Climate and Earth")["paper_medians_p25_p75"]    # [5.5, 7.09]
-figfont.fields()            # the five field names
-figfont.journals()          # the 90 journal names
+figfit.reference("Nature")["median_pt"]                                 # 6.0
+figfit.reference(field="Climate and Earth")["paper_medians_p25_p75"]    # [5.5, 7.09]
+figfit.fields()            # the five field names
+figfit.journals()          # the 90 journal names
 ```
 
 | Key | Meaning |
@@ -277,7 +281,7 @@ A journal name that has no numbers of its own gives the numbers for all papers.
 ### Give a figure a verdict
 
 ```python
-figfont.verdict(figfont.figure("before.pdf", 5.15))
+figfit.verdict(figfit.figure("before.pdf", 5.15))
 # {'name': 'before.pdf', 'method': 'text', 'n': 52, 'median_pt': 3.96, 'p10_pt': 3.96, 'p90_pt': 3.96,
 #  'reference_median_pt': 6.5, 'reference_range_pt': [5.54, 7.35],
 #  'verdict': 'small', 'scale_to_reference': 1.64}
@@ -326,7 +330,7 @@ These come from the 1,169 papers with exact sizes.
   Portfolio, 400 from Copernicus and 120 from Springer. The other 135 are from the author's own
   library.
 
-[`figfont/reference.json`](figfont/reference.json) holds summary numbers only. Up to version 0.2.3
+[`figfit/reference.json`](figfit/reference.json) holds summary numbers only. Up to version 0.2.3
 it held 111 papers and gave 8 pt. Those papers were read from stored text only, and 64 of them
 have no stored figure text, so much of that number came from other text on the page.
 
@@ -341,7 +345,7 @@ prints at a chosen size, whatever width the figure was drawn at.
 </p>
 
 ```python
-from figfont.mpl import set_printed_fonts, scale_fonts
+from figfit.mpl import set_printed_fonts, scale_fonts
 
 set_printed_fonts(fig, printed_width=3.4)                       # the defaults below
 set_printed_fonts(fig, printed_width=3.4, sizes={"tick": 8})    # change one of them
@@ -381,7 +385,7 @@ picks the size that makes the narrowest panel 15 text heights wide, and keeps it
 </p>
 
 ```python
-size = figfont.suggest_size(fig, printed_pt=8)    # 6.0 for the grid above
+size = figfit.suggest_size(fig, printed_pt=8)    # 6.0 for the grid above
 scale_fonts(fig, size / 8)
 ```
 
@@ -405,10 +409,10 @@ off when saving with `bbox_inches="tight"`, which grows the figure to hold such 
 </p>
 
 ```python
-for text, other, why in figfont.overlaps(fig, edges=True):
+for text, other, why in figfit.overlaps(fig, edges=True):
     ...                                   # the Text, what it touches, and the kind of collision
 
-figfont.report_overlaps(fig, "peaks.png", edges=True)    # prints them, returns how many
+figfit.report_overlaps(fig, "peaks.png", edges=True)    # prints them, returns how many
 ```
 
 ```text
@@ -427,7 +431,7 @@ changes a font size, a colour, the data or the wording. It never changes the wid
 either, because the width sets the print scale.
 
 ```python
-left = figfont.fit(fig, "fig04")    # prints what it did; returns the number of collisions left
+left = figfit.fit(fig, "fig04")    # prints what it did; returns the number of collisions left
 ```
 
 It works through ten steps in this order, and goes round again while anything still touches.
@@ -527,7 +531,7 @@ own.
 
 <p align="center"><img src="docs/images/fit_notes.png" width="880" alt="Season labels on a world map that cut into the coast, moved onto open ocean."></p>
 
-On cartopy maps, call `figfont.textfit.pad_cartopy_labels()` once before drawing. Cartopy redraws
+On cartopy maps, call `figfit.textfit.pad_cartopy_labels()` once before drawing. Cartopy redraws
 its coordinate labels on every draw, so the gap between them has to be cartopy's own rule.
 
 ### What fit prints
@@ -544,12 +548,60 @@ its coordinate labels on every draw, so the gap between them has to be cartopy's
 
 `fit(fig, quiet=True)` prints nothing and returns the number of collisions left.
 
+## 8. Check colours for colour-blind readers
+
+About 1 man in 12 and 1 woman in 200 sees colour differently. Most of them confuse red and green;
+a few confuse blue and yellow. A figure that tells its lines or bars apart by red and green alone
+loses those readers, and so does a colour map whose two sides turn into the same colour.
+
+`colour_problems(fig)` simulates the three kinds of colour blindness (protan, deutan, tritan, with
+the matrices of Machado et al., 2009) and measures how different two colours then look. It checks,
+panel by panel, every pair of colours that names something (lines, points, bars, filled areas and
+legend entries), and every colour map used for data.
+
+<p align="center">
+  <img src="docs/images/colourblind.png" width="880"
+       alt="A figure with red, green and purple lines and a red-yellow-green colour map, as seen with normal vision and by a green-blind reader, who sees the red and green lines and both sides of the map as the same olive colour. Below, the same figure with blue, orange and black lines in three line styles and a red-blue map, which stays readable.">
+</p>
+
+```python
+import figfit
+
+for problem in figfit.colour_problems(fig):
+    print(problem)
+```
+
+```text
+COLOUR: panel a: 'observed' and 'model': #d62728 and #2ca02c look alike to green-blind (deutan) readers (difference 3.9, want 8+)
+COLOUR: panel b: colour map 'RdYlGn': its two sides look alike to green-blind (deutan) readers (most different pair 5); use a blue-red or purple-green diverging map (RdBu, PuOr, BrBG)
+```
+
+The difference is the distance between the two colours in OKLab, times 100: about 1 is just
+noticeable, and 8 or more reads as clearly different next to each other in a legend. A pair that
+also differs by line style, marker or hatch is reported as a note only (`problem.serious` is
+`False`), because those readers can still tell the two apart.
+
+Colour maps get their own checks (`colormap_problems("jet")` works on a name alone):
+
+| The map | Is reported when |
+|---|---|
+| a rainbow (`jet`, `turbo`, `rainbow`, `hsv`, `Spectral`, …) | always: lightness goes up and down, so equal steps don't look equal |
+| diverging (light in the middle) | its two sides look alike to one kind of reader, as `RdYlGn` and `PiYG` do |
+| sequential | its lightness changes too little from end to end, or goes back and forth |
+
+For a figure you only have as a file, `image_problems(path)` finds the flat colours in a PNG or
+PDF (lines, markers, bars, legend keys, filled areas) and reports pairs that are clearly different
+to most readers but alike to colour-blind ones, worst first. It can't know what each colour means,
+so treat each pair as a place to look: two colours in different panels may never need telling
+apart, and a smooth colour map is not seen at all. `colourblind_sheet(path)` saves the figure as each
+kind of reader sees it, side by side, which is the quickest way to judge.
+
 ---
 
 ## Command line
 
 ```console
-$ figfont check before.pdf after.pdf
+$ figfit check before.pdf after.pdf
 published papers: median 6.5 pt, middle half of papers 5.54-7.35 pt
   before.pdf                       median  3.96 pt (1.0 mm caps)  p10  3.96  SMALL  x1.64
   after.pdf                        median  7.00 pt (1.7 mm caps)  p10  7.00  OK     x0.93
@@ -565,11 +617,11 @@ paper: every font times 0.93 would put it on the published median.
 Compare with one journal or one field:
 
 ```console
-$ figfont check after.pdf --journal "Nature"
+$ figfit check after.pdf --journal "Nature"
 published papers (Nature): median 6.0 pt, middle half of papers 6.0-7.0 pt
   after.pdf                        median  7.00 pt (1.7 mm caps)  p10  7.00  OK     x0.86
 
-$ figfont check after.pdf --field "Climate and Earth"
+$ figfit check after.pdf --field "Climate and Earth"
 published papers (Climate and Earth): median 6.28 pt, middle half of papers 5.5-7.09 pt
   after.pdf                        median  7.00 pt (1.7 mm caps)  p10  7.00  OK     x0.9
 ```
@@ -578,7 +630,7 @@ A width goes after `@`, in inches, or once for all files with `--width`. Without
 372 pt (5.17 in), a common text width. Images are read with OCR:
 
 ```console
-$ figfont check after.png@5.15
+$ figfit check after.png@5.15
 published papers: median 6.5 pt, middle half of papers 5.54-7.35 pt
   after.png                        median  6.66 pt (1.6 mm caps)  p10  5.63  SMALL  x0.98
 ```
@@ -589,22 +641,40 @@ This is the same figure as `after.pdf`. OCR reads its smallest text as 5.6 pt wh
 A compiled paper needs no width:
 
 ```console
-$ figfont paper paper.pdf
+$ figfit paper paper.pdf
 published papers: median 6.5 pt, middle half of papers 5.54-7.35 pt
   paper.pdf                        median  7.00 pt (1.7 mm caps)  p10  7.00  OK     x0.93
 ```
 
+Colours that colour-blind readers can't tell apart, with `--sheet` to save how each kind of
+reader sees the figure (exit code 1 when anything is found):
+
+```console
+$ figfit colours colours.png --sheet
+colours.png: 6 pairs of colours look alike to colour-blind readers
+  #63bc62 (0.3 % of the figure) and #fdaf62 (0.2 %) look alike to red-blind (protan) readers (difference 2.4)
+  #d62728 (0.3 % of the figure) and #016a38 (0.2 %) look alike to red-blind (protan) readers (difference 3.4)
+  #2ca02c (0.3 % of the figure) and #d62728 (0.3 %) look alike to green-blind (deutan) readers (difference 3.9)
+  #d62728 (0.3 % of the figure) and #199750 (0.2 %) look alike to green-blind (deutan) readers (difference 5.1)
+  #63bc62 (0.3 % of the figure) and #fdbb6c (0.2 %) look alike to red-blind (protan) readers (difference 5.3)
+  #d62728 (0.3 % of the figure) and #148e4b (0.2 %) look alike to green-blind (deutan) readers (difference 5.4)
+  sheet: colours.colourblind.png
+```
+
+That is the "Before" figure above. It finds the red and green lines, and the red-yellow-green
+map's cells, which it sees as flat colours here; `colour_problems(fig)` names both properly.
+
 The size to draw at, for a target of 8 pt on a 13 in figure printed 5.15 in wide:
 
 ```console
-$ figfont scale 8 13 5.15
+$ figfit scale 8 13 5.15
 20.19 pt
 ```
 
 `--json` gives the same numbers for scripts:
 
 ```console
-$ figfont check after.pdf --json
+$ figfit check after.pdf --json
 [
  {
   "name": "after.pdf",
@@ -644,16 +714,22 @@ The files used here are in [`docs/examples`](docs/examples).
 | `journals()` | the names of the journals that have their own numbers |
 | `fields()` | the names of the fields |
 | `verdict(result, journal=None, smallest_ok=6.0, field=None)` | the summary, the reference and `small`, `ok` or `large` |
-| `figfont.mpl.set_printed_fonts(fig, printed_width, sizes=None)` | nothing; sets each kind of text to its printed size |
-| `figfont.mpl.scale_fonts(fig, factor)` | nothing; multiplies every font size |
+| `figfit.mpl.set_printed_fonts(fig, printed_width, sizes=None)` | nothing; sets each kind of text to its printed size |
+| `figfit.mpl.scale_fonts(fig, factor)` | nothing; multiplies every font size |
 | `density(fig)` | the width of each panel in text heights, and the share of it that its labels cover |
 | `suggest_size(fig, printed_pt=8, target=15, low=6, high=8, step=1)` | the printed size the figure should use |
 | `overlaps(fig, edges=False)` | a list of `(text, other, why)` |
 | `report_overlaps(fig, name="", edges=False)` | the number of collisions, after printing them |
 | `fit(fig, name="", edges=False, quiet=False)` | the number of collisions left |
 | `clear_notes(fig)` | the number of boxed notes moved, and a list of those with no clear place |
+| `colour_problems(fig, min_de=8)` | a list of `Problem`s: colour pairs and colour maps colour-blind readers can't read |
+| `colormap_problems(cmap, min_de=8)` | the problems of one colour map, given by name or as a `Colormap` |
+| `image_problems(path, min_de=6, distinct=15)` | the colour pairs in a PNG or PDF that look alike to colour-blind readers |
+| `colourblind_sheet(path, out=None)` | the path of a picture of the figure as each kind of reader sees it |
+| `figfit.colour.simulate(colours, kind)` | colours (any array, last axis RGB 0-1) as a `protan`, `deutan` or `tritan` reader sees them |
+| `figfit.colour.difference(a, b, kind="normal")` | how different two colours look to that reader (OKLab x 100) |
 
-All of them are in `figfont` except the two in `figfont.mpl`.
+All of them are in `figfit` except the two in `figfit.mpl` and the two in `figfit.colour`.
 
 ## Accuracy and limits
 
@@ -670,6 +746,11 @@ All of them are in `figfont` except the two in `figfont.mpl`.
   or more entries. Their text sizes are right; the `width_in` of each is the width of that part.
 - **`fit` works on matplotlib figures.** It needs a tag to know which panel a letter or title
   placed with `fig.text` belongs to (see [letters](#letters)).
+- **The colour check simulates full colour blindness.** Most colour-blind readers have a milder
+  form, so a pair that passes for them passes for everyone. Simulation is a model: a pair just
+  under the line is worth a look at the sheet, not an automatic change. `colour_problems` reads
+  colours from the figure's artists; colours drawn into an image with `imshow` from RGB values
+  are only seen by `image_problems`.
 - **The reference is a sample.** It is 3,363 papers from 132 journals, nearly all open access and
   published from 2022 to 2025. Two papers in three were read by OCR. Over many papers that
   evens out, but for one paper an OCR size can be 15 % off. Journals with fewer than ten papers
@@ -678,13 +759,13 @@ All of them are in `figfont` except the two in `figfont.mpl`.
 ## Development
 
 ```bash
-git clone https://github.com/jake-casselman/figfont
-cd figfont
+git clone https://github.com/jake-casselman/figfit
+cd figfit
 pip install -e ".[mac]" pytest
 python -m pytest tests
 ```
 
-Every image on this page is drawn by calling figfont on a real matplotlib figure, so the page
+Every image on this page is drawn by calling figfit on a real matplotlib figure, so the page
 shows what the code does today. Draw them again after a change:
 
 ```bash

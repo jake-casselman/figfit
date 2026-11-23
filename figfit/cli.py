@@ -1,8 +1,9 @@
-"""figfont command line.
+"""figfit command line.
 
-  figfont check FIGURE[@WIDTH] ...   printed text size of figure files (WIDTH in inches, default --width)
-  figfont paper PAPER.pdf ...        figure text in compiled papers (the text the PDF stores)
-  figfont scale TARGET DRAWN_WIDTH PRINTED_WIDTH   font size to draw at to print at TARGET pt
+  figfit check FIGURE[@WIDTH] ...   printed text size of figure files (WIDTH in inches, default --width)
+  figfit paper PAPER.pdf ...        figure text in compiled papers (the text the PDF stores)
+  figfit scale TARGET DRAWN_WIDTH PRINTED_WIDTH   font size to draw at to print at TARGET pt
+  figfit colours FIGURE ... [--sheet]   colours that colour-blind readers can't tell apart
 """
 from __future__ import annotations
 
@@ -10,11 +11,11 @@ import argparse
 import json
 import os
 
-from . import compare, measure, papers, scale
+from . import colour, compare, measure, papers, scale
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="figfont", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(prog="figfit", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("check", help="figure files at their printed width")
     c.add_argument("figures", nargs="+")
@@ -23,14 +24,31 @@ def main(argv=None) -> int:
     p = sub.add_parser("paper", help="compiled paper PDFs")
     p.add_argument("pdfs", nargs="+")
     for parser in (c, p):
-        parser.add_argument("--journal", help="compare with one journal (see figfont.journals())")
-        parser.add_argument("--field", help="compare with one field (see figfont.fields())")
+        parser.add_argument("--journal", help="compare with one journal (see figfit.journals())")
+        parser.add_argument("--field", help="compare with one field (see figfit.fields())")
         parser.add_argument("--json", action="store_true")
     s = sub.add_parser("scale", help="font size to draw at")
     s.add_argument("target_pt", type=float)
     s.add_argument("drawn_width", type=float)
     s.add_argument("printed_width", type=float)
+    k = sub.add_parser("colours", aliases=["colors"], help="colour-blind check of figure files (PNG or PDF)")
+    k.add_argument("figures", nargs="+")
+    k.add_argument("--sheet", action="store_true",
+                   help="also save NAME.colourblind.png: the figure as each kind of reader sees it")
     a = ap.parse_args(argv)
+
+    if a.cmd in ("colours", "colors"):
+        found = 0
+        for path in a.figures:
+            problems = colour.image_problems(path)
+            found += len(problems)
+            print(f"{os.path.basename(path)}: " + (f"{len(problems)} pair{'s' if len(problems) > 1 else ''} of colours "
+                  "look alike to colour-blind readers" if problems else "ok, its main colours stay apart for colour-blind readers"))
+            for problem in problems:
+                print(f"  {problem.why}")
+            if a.sheet:
+                print(f"  sheet: {colour.sheet(path)}")
+        return 1 if found else 0
 
     if a.cmd == "scale":
         print(f"{scale.drawn_pt_for(a.target_pt, a.drawn_width, a.printed_width):.2f} pt")
@@ -66,7 +84,7 @@ def main(argv=None) -> int:
         if r.get("figures_without_stored_text"):
             n = r["figures_without_stored_text"]
             print(f"  {'':32s} {n} figure{'s' if n > 1 else ''} with no stored text (an image, or letters saved as shapes):"
-                  " measure the figure file with `figfont check`")
+                  " measure the figure file with `figfit check`")
     return 0
 
 
