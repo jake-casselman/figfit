@@ -258,12 +258,18 @@ def colour_problems(fig, min_de: float = MIN_DE) -> list[Problem]:
         problems += _pairs(keys, where, min_de)
         for artist in [*ax.images, *ax.collections]:
             if isinstance(artist, ScalarMappable) and artist.get_array() is not None:
-                maps.setdefault(artist.get_cmap().name, where)
+                maps.setdefault(artist.get_cmap().name, (artist.get_cmap(), where))
     for legend in fig.legends:
         problems += _pairs(_legend_keys(legend), "the figure legend", min_de)
-    for name, where in maps.items():
-        problems += colormap_problems(name, min_de, f"{where}: colour map {name!r}")
-    return problems
+    for name, (cmap, where) in maps.items():
+        problems += colormap_problems(cmap, min_de, f"{where}: colour map {name!r}")
+    unique, seen = [], set()
+    for problem in problems:  # one line per pair of colours in a panel, however many artists share them
+        key = (problem.what.split(":")[0], tuple(sorted(problem.colours)), problem.why.split(";")[0][-60:])
+        if key not in seen:
+            seen.add(key)
+            unique.append(problem)
+    return unique
 
 
 # --- image files --------------------------------------------------------------------------------
