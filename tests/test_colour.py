@@ -58,3 +58,8 @@ def test_files_and_sheet(tmp_path, capsys):
     assert main(["colours", str(bad), "--sheet"]) == 1
     out = capsys.readouterr().out
     assert "look alike" in out and (tmp_path / "bad.colourblind.png").exists()
+
+
+def test_one_colour_map_is_not_a_scale():
+    from matplotlib.colors import LinearSegmentedColormap
+    assert colour.colormap_problems(LinearSegmentedColormap.from_list("white", ["white", "white"])) == []

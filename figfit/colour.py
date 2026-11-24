@@ -204,6 +204,8 @@ def colormap_problems(cmap, min_de: float = MIN_DE, where: str = "") -> list[Pro
     x = np.linspace(0, 1, 129)
     colours = cmap(x)[:, :3]
     problems = []
+    if 100 * np.linalg.norm(oklab(colours) - oklab(colours[:1]), axis=1).max() < SAME_DE:
+        return problems  # one colour (contour lines drawn in white, say): nothing to read off it
     lightness = oklab(colours)[:, 0]
     middle = int(np.argmax(lightness[16:-16])) + 16
     diverging = (lightness[middle] - max(lightness[0], lightness[-1]) > 0.15

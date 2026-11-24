@@ -46,7 +46,8 @@ def verdict(result: Result, journal: str | None = None, smallest_ok: float = 6.0
     out = result.summary() | {"reference_median_pt": ref["median_pt"], "reference_range_pt": [low, high]}
     if not result.sizes:
         return out | {"verdict": "no text found"}
-    if result.median < low or (result.percentile(10) or 0) < smallest_ok:
+    # 0.05 pt of slack: a PDF stores 6 pt text as 5.99 pt
+    if result.median < low or (result.percentile(10) or 0) < smallest_ok - 0.05:
         v = "small"
     elif result.median > high:
         v = "large"
