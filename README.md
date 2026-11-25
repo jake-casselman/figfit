@@ -25,7 +25,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/reference.png" width="880"
+  <img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/reference.png" width="880"
        alt="How many of 3,363 published papers have each figure text size, from 4 to 11 pt, and the range for each of five fields. The typical paper is at 6.5 pt.">
 </p>
 
@@ -44,13 +44,13 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/hero.png" width="880"
+  <img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/hero.png" width="880"
        alt="One figure three times: as drawn, with 4 pt text in print; after set_printed_fonts, with 7 to 8 pt text that collides; after fit, with the collisions gone.">
 </p>
 
 | Start with | What it is |
 |---|---|
-| [**Notebook tour**](docs/tour.ipynb) | The problem, then one figure fixed step by step, with every output explained. You only need to know matplotlib |
+| [**Notebook tour**](https://github.com/jake-casselman/figfit/blob/main/docs/tour.ipynb) | The problem, then one figure fixed step by step, with every output explained. You only need to know matplotlib |
 | [Quick start](#quick-start) | The three lines most figures need |
 | [Reference](#1-work-out-the-size) | Each function with a picture of what it does |
 
@@ -79,15 +79,12 @@ There is also a [command line](#command-line) for checking figure files and comp
 ## Install
 
 ```bash
-# macOS, with OCR by Apple Vision
-pip install "figfit[mac] @ git+https://github.com/jake-casselman/figfit"
-
-# Linux and Windows, with OCR by tesseract (the tesseract command must be installed)
-pip install "figfit[tesseract] @ git+https://github.com/jake-casselman/figfit"
-
-# no OCR: vector PDFs and matplotlib figures only
-pip install git+https://github.com/jake-casselman/figfit
+pip install figfit                 # vector PDFs and matplotlib figures
+pip install "figfit[mac]"          # macOS, with OCR by Apple Vision
+pip install "figfit[tesseract]"    # Linux and Windows, with OCR by tesseract (the tesseract command must be installed)
 ```
+
+The latest code from GitHub: `pip install git+https://github.com/jake-casselman/figfit`.
 
 Python 3.10 or later. It installs matplotlib, numpy, pillow and pymupdf. OCR is only used to
 measure images (PNG, JPEG) and PDFs whose text is stored as shapes.
@@ -119,10 +116,10 @@ figfit.figure("fig01.pdf", printed_width=5.15).summary()
 # {'name': 'fig01.pdf', 'method': 'text', 'n': 43, 'median_pt': 7.0, 'p10_pt': 7.0, 'p90_pt': 8.0}
 ```
 
-The full script is [`docs/examples/quickstart.py`](docs/examples/quickstart.py). It draws the
+The full script is [`docs/examples/quickstart.py`](https://github.com/jake-casselman/figfit/blob/main/docs/examples/quickstart.py). It draws the
 three-panel figure at the top of this page in matplotlib's own style.
 
-The [notebook tour](docs/tour.ipynb) takes that same figure from first draft to the page one step
+The [notebook tour](https://github.com/jake-casselman/figfit/blob/main/docs/tour.ipynb) takes that same figure from first draft to the page one step
 at a time, and says what each number it prints means. The sections below are the reference for
 each function.
 
@@ -134,7 +131,7 @@ Text scales with the figure: `printed size = drawn size × printed width ÷ draw
 functions do this arithmetic in both directions. Widths are in inches and sizes in points.
 
 <p align="center">
-  <img src="docs/images/scale.png" width="880"
+  <img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/scale.png" width="880"
        alt="A figure drawn 13 in wide and printed 5.15 in wide, with the result of each of the five functions.">
 </p>
 
@@ -170,7 +167,7 @@ It reads the sizes in one of two ways, and `result.method` says which:
 | `ocr` | PNG and JPEG images, and PDFs with fewer than five pieces of stored text | the figure is rendered at its printed width, the text is read off the pixels, and the height of each line is converted to points | `figure_ocr` |
 
 <p align="center">
-  <img src="docs/images/measure.png" width="880"
+  <img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/measure.png" width="880"
        alt="A PNG figure with a box round each line of text that OCR found and its size in points.">
 </p>
 
@@ -186,7 +183,7 @@ caption, and keeps the text in or right beside them that is not in one of the pa
 The body text and the captions are left out.
 
 <p align="center">
-  <img src="docs/images/paper.png" width="880"
+  <img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/paper.png" width="880"
        alt="A page of a paper. The 45 pieces of text inside its figure are outlined; the body text and the caption are greyed.">
 </p>
 
@@ -231,7 +228,7 @@ in its figures.
 | The five fields | 6.3 pt (climate and Earth) to 6.8 pt (physics, chemistry and materials) |
 
 <p align="center">
-  <img src="docs/images/reference.png" width="880"
+  <img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/reference.png" width="880"
        alt="Top: how many of the 3,363 papers have each figure text size, split into papers with exact sizes and papers read by OCR, with the bands that verdict calls small, ok and large. Bottom: the range for all papers and for each of five fields.">
 </p>
 
@@ -241,11 +238,11 @@ thick bar is the middle half of a journal's papers, the thin line 8 in 10 of the
 band the middle half of all papers.
 
 <p align="center">
-  <img src="docs/images/journals.png" width="880"
+  <img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/journals.png" width="880"
        alt="The range of figure text sizes in each of 90 journals, grouped into five fields.">
 </p>
 
-The same numbers as a table: [`docs/reference.md`](docs/reference.md).
+The same numbers as a table: [`docs/reference.md`](https://github.com/jake-casselman/figfit/blob/main/docs/reference.md).
 
 ### Ask for the numbers
 
@@ -299,7 +296,7 @@ Pass `journal="Nature"` or `field="Climate and Earth"` to compare with one journ
 ### The small end, and the caption
 
 <p align="center">
-  <img src="docs/images/small_text.png" width="880"
+  <img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/small_text.png" width="880"
        alt="Left: the share of papers in which a tenth of the figure text is under 6 pt and under 5 pt, for all papers and each field. Right: figure text size divided by caption size, for every paper.">
 </p>
 
@@ -330,7 +327,7 @@ These come from the 1,169 papers with exact sizes.
   Portfolio, 400 from Copernicus and 120 from Springer. The other 135 are from the author's own
   library.
 
-[`figfit/reference.json`](figfit/reference.json) holds summary numbers only. Up to version 0.2.3
+[`figfit/reference.json`](https://github.com/jake-casselman/figfit/blob/main/figfit/reference.json) holds summary numbers only. Up to version 0.2.3
 it held 111 papers and gave 8 pt. Those papers were read from stored text only, and 64 of them
 have no stored figure text, so much of that number came from other text on the page.
 
@@ -340,7 +337,7 @@ have no stored figure text, so much of that number came from other text on the p
 prints at a chosen size, whatever width the figure was drawn at.
 
 <p align="center">
-  <img src="docs/images/set_printed_fonts.png" width="880"
+  <img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/set_printed_fonts.png" width="880"
        alt="A figure before and after set_printed_fonts, with each kind of text marked with the size it now prints at.">
 </p>
 
@@ -380,7 +377,7 @@ picks the size that makes the narrowest panel 15 text heights wide, and keeps it
 8 pt. The grid below would need less than 4 pt, so it gets 6 pt, the smallest size allowed.
 
 <p align="center">
-  <img src="docs/images/suggest_size.png" width="880"
+  <img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/suggest_size.png" width="880"
        alt="A grid of ten small panels at 8 pt, where the year labels collide, and at the suggested 6 pt, where they do not.">
 </p>
 
@@ -404,7 +401,7 @@ neighbouring panel. With `edges=True` it also lists text that runs off the figur
 off when saving with `bbox_inches="tight"`, which grows the figure to hold such text.
 
 <p align="center">
-  <img src="docs/images/overlaps.png" width="880"
+  <img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/overlaps.png" width="880"
        alt="A two-panel figure with a long title that runs over the next panel and a label cut off by the edge of the figure, both marked.">
 </p>
 
@@ -455,28 +452,28 @@ A legend whose text lies on what its panel draws (a map, bars, a filled band) mo
 corner of the panel. When the panel has no empty corner, it goes under the panel with its entries
 in a row. Background bands and grid lines do not count as data.
 
-<p align="center"><img src="docs/images/fit_cover.png" width="880" alt="A legend moved off bars into an empty corner, and a legend on a full panel moved under it."></p>
+<p align="center"><img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/fit_cover.png" width="880" alt="A legend moved off bars into an empty corner, and a legend on a full panel moved under it."></p>
 
 ### wrap
 
 A panel title, axis label or colour-bar label that is longer than its panel and touches other
 text, or runs off the figure, goes onto two lines. The words stay the same.
 
-<p align="center"><img src="docs/images/fit_wrap.png" width="880" alt="Two long x-axis labels that ran into each other, each now on two lines."></p>
+<p align="center"><img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/fit_wrap.png" width="880" alt="Two long x-axis labels that ran into each other, each now on two lines."></p>
 
 ### pads
 
 An axis label or colour-bar label keeps a gap of 0.3 of its font size from its tick numbers. A
 gap set in points does not grow when the font does.
 
-<p align="center"><img src="docs/images/fit_pads.png" width="880" alt="Axis labels that touched their tick numbers, moved out."></p>
+<p align="center"><img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/fit_pads.png" width="880" alt="Axis labels that touched their tick numbers, moved out."></p>
 
 ### letters
 
 A panel letter that lies on a title or an axis label moves clear of it. The other letters in its
 column move with it, so they stay in line.
 
-<p align="center"><img src="docs/images/fit_letters.png" width="880" alt="Panel letters a and b moved clear of the panel titles."></p>
+<p align="center"><img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/fit_letters.png" width="880" alt="Panel letters a and b moved clear of the panel titles."></p>
 
 Letters and titles placed with `fig.text` need a tag so `fit` knows which panel they belong to.
 The offsets are in figure fractions from the panel's top-left corner:
@@ -491,25 +488,25 @@ letter._panel = {"axis": ax, "kind": "letter", "dx": -0.02, "dy": 0.01}    # or 
 Tick labels that touch their neighbours tilt 30 degrees. If they still touch, they tilt to 45, 60
 or 90. Two-line tick labels go onto one line first.
 
-<p align="center"><img src="docs/images/fit_ticks.png" width="880" alt="Bar names that ran into each other, tilted 30 degrees."></p>
+<p align="center"><img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/fit_ticks.png" width="880" alt="Bar names that ran into each other, tilted 30 degrees."></p>
 
 ### inside
 
 A note inside a panel that runs past the side of the panel moves back in.
 
-<p align="center"><img src="docs/images/fit_inside.png" width="880" alt="A note that ran out of the right side of its panel, moved back inside."></p>
+<p align="center"><img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/fit_inside.png" width="880" alt="A note that ran out of the right side of its panel, moved back inside."></p>
 
 ### repel
 
 Two notes in one panel that touch are pushed apart.
 
-<p align="center"><img src="docs/images/fit_repel.png" width="880" alt="Two place names on top of each other, pushed apart."></p>
+<p align="center"><img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/fit_repel.png" width="880" alt="Two place names on top of each other, pushed apart."></p>
 
 ### legends
 
 A legend that touches a label or a title moves away from it.
 
-<p align="center"><img src="docs/images/fit_legends.png" width="880" alt="A figure legend that lay on the panel titles, moved off them."></p>
+<p align="center"><img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/fit_legends.png" width="880" alt="A figure legend that lay on the panel titles, moved off them."></p>
 
 ### space
 
@@ -517,7 +514,7 @@ Text that still touches the text of a neighbouring panel gets more space between
 step at a time. Panels side by side get more space between them. Rows get more space and a
 taller figure.
 
-<p align="center"><img src="docs/images/fit_space.png" width="880" alt="A colour-bar label and the next panel's y-axis label that touched, with space added between the panels."></p>
+<p align="center"><img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/fit_space.png" width="880" alt="A colour-bar label and the next panel's y-axis label that touched, with space added between the panels."></p>
 
 ### notes
 
@@ -529,7 +526,7 @@ with the most room round it. A note may sit on specks smaller than itself (islan
 a note written on the data on purpose stays where it is. `clear_notes(fig)` runs this step on its
 own.
 
-<p align="center"><img src="docs/images/fit_notes.png" width="880" alt="Season labels on a world map that cut into the coast, moved onto open ocean."></p>
+<p align="center"><img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/fit_notes.png" width="880" alt="Season labels on a world map that cut into the coast, moved onto open ocean."></p>
 
 On cartopy maps, call `figfit.textfit.pad_cartopy_labels()` once before drawing. Cartopy redraws
 its coordinate labels on every draw, so the gap between them has to be cartopy's own rule.
@@ -560,7 +557,7 @@ panel by panel, every pair of colours that names something (lines, points, bars,
 legend entries), and every colour map used for data.
 
 <p align="center">
-  <img src="docs/images/colourblind.png" width="880"
+  <img src="https://raw.githubusercontent.com/jake-casselman/figfit/main/docs/images/colourblind.png" width="880"
        alt="A figure with red, green and purple lines and a red-yellow-green colour map, as seen with normal vision and by a green-blind reader, who sees the red and green lines and both sides of the map as the same olive colour. Below, the same figure with blue, orange and black lines in three line styles and a red-blue map, which stays readable.">
 </p>
 
@@ -694,7 +691,7 @@ $ figfit check after.pdf --json
 ]
 ```
 
-The files used here are in [`docs/examples`](docs/examples).
+The files used here are in [`docs/examples`](https://github.com/jake-casselman/figfit/tree/main/docs/examples).
 
 ## All functions
 
@@ -784,4 +781,4 @@ jupyter nbconvert --to notebook --execute --inplace docs/tour.ipynb
 
 ## Licence
 
-[MIT](LICENSE) © Jake Casselman
+[MIT](https://github.com/jake-casselman/figfit/blob/main/LICENSE) © Jake Casselman

@@ -32,5 +32,8 @@ tesseract = ["pytesseract"]
 [project.scripts]
 figfit = "figfit.cli:main"
 
+[tool.setuptools.packages.find]
+include = ["figfit*"]
+
 [tool.setuptools.package-data]
 figfit = ["reference.json"]

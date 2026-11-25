@@ -2,6 +2,8 @@
 
 ## 0.4.0 (2026-11-23)
 
+- **On PyPI:** `pip install figfit`. A version tag (`v0.4.0`) publishes it through GitHub Actions with
+  PyPI trusted publishing; the README's pictures and links point at GitHub so they show on PyPI too.
 - **Renamed figfont to figfit**, because it now does more than font sizes: `pip install figfit`,
   `import figfit`, the `figfit` command. The repository moved to github.com/jake-casselman/figfit.
 - **Colour-blind check.** `colour_problems(fig)` reports colour pairs that name things (lines,

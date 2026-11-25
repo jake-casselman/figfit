@@ -1,3 +1,4 @@
+from pathlib import Path
 import pytest
 
 import figfit
@@ -54,6 +55,7 @@ def test_verdict_against_a_journal_and_a_field():
 
 def test_the_command_line_takes_a_field(capsys):
     field = figfit.fields()[0]
-    assert cli.main(["paper", "docs/examples/paper.pdf", "--field", field]) == 0
+    paper = Path(__file__).resolve().parent.parent / "docs" / "examples" / "paper.pdf"
+    assert cli.main(["paper", str(paper), "--field", field]) == 0
     out = capsys.readouterr().out
     assert f"median {figfit.reference(field=field)['median_pt']} pt" in out and "paper.pdf" in out
