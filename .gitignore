@@ -7,3 +7,12 @@ dist/
 .DS_Store
 docs/tour_output/
 .ipynb_checkpoints/
+
+# docs site: pages generated from README.md, and the build
+docs/index.md
+docs/guide/
+docs/cli.md
+docs/functions.md
+docs/limits.md
+docs/development.md
+site/

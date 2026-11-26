@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- **Docs site** (MkDocs): the README as a guide in eight steps, the notebook tour, the published
+  sizes by journal, an API reference read from the docstrings, and this changelog. Published to
+  GitHub Pages from `main`.
+
 ## 0.4.0 (2026-11-23)
 
 - **On PyPI:** `pip install figfit`. A version tag (`v0.4.0`) publishes it through GitHub Actions with

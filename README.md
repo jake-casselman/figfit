@@ -779,6 +779,18 @@ pip install jupyter cartopy
 jupyter nbconvert --to notebook --execute --inplace docs/tour.ipynb
 ```
 
+### Docs site
+
+The docs site is this README split into pages, plus the notebook, the journal tables and an API
+reference read from the docstrings. Edit the README, not the generated pages. Build and view it:
+
+```bash
+pip install -r docs/requirements.txt
+python docs/readme_pages.py && mkdocs serve
+```
+
+GitHub builds and publishes it on every push to `main` (`.github/workflows/docs.yml`).
+
 ## Licence
 
 [MIT](https://github.com/jake-casselman/figfit/blob/main/LICENSE) © Jake Casselman

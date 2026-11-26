@@ -1,0 +1,77 @@
+site_name: figfit
+site_description: "Figures that read well in print: text at the size you meant, no colliding text, and colours colour-blind readers can tell apart"
+site_url: https://jake-casselman.github.io/figfit/
+repo_url: https://github.com/jake-casselman/figfit
+repo_name: jake-casselman/figfit
+edit_uri: ""
+copyright: MIT licence © Jake Casselman
+use_directory_urls: false   # plain .html pages, so the README's raw-HTML links and images resolve
+
+# Most pages are generated from README.md: run `python docs/readme_pages.py` first.
+exclude_docs: |
+  *.py
+  examples/*.py
+  tour_output/
+  __pycache__/
+
+theme:
+  name: material
+  features: [navigation.sections, navigation.top, navigation.footer, content.code.copy, search.highlight]
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: blue
+      toggle: {icon: material/weather-night, name: Dark mode}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: blue
+      toggle: {icon: material/weather-sunny, name: Light mode}
+
+nav:
+  - Home: index.md
+  - Notebook tour: tour.ipynb
+  - Guide:
+      - 1. Work out the size: guide/size.md
+      - 2. Measure what prints: guide/measure.md
+      - 3. Compare with published papers: guide/compare.md
+      - 4. Set the printed sizes: guide/set-sizes.md
+      - 5. Pick a size for small panels: guide/small-panels.md
+      - 6. Find colliding text: guide/find-collisions.md
+      - 7. Fix colliding text: guide/fix-collisions.md
+      - 8. Check colours: guide/colour.md
+  - Command line: cli.md
+  - Reference:
+      - Published sizes by journal: reference.md
+      - All functions: functions.md
+      - API reference: api.md
+      - Accuracy and limits: limits.md
+  - Development: development.md
+  - Changelog: changelog.md
+
+markdown_extensions:
+  - tables
+  - toc: {permalink: true}
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.snippets: {check_paths: true}
+
+plugins:
+  - search
+  - mkdocs-jupyter: {execute: false, include_source: true, ignore_h1_titles: true}
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_root_heading: false
+            show_root_toc_entry: false
+            show_source: false
+            heading_level: 3
+            show_signature_annotations: false
+            separate_signature: true
+            docstring_style: google
+            show_if_no_docstring: false
